@@ -13,12 +13,12 @@ layout is a bit different.
 Many other technical changes were necessary:
 
 In an effort to tidy it up I created a C++ equivalent program. In this program the functions were restructured radically and many 
-comments added to make it a bit easier to follow. Also, I discoverd that there were two completely different types of home-made 
+comments added to make it a bit easier to follow. Also, I discovered that there were two completely different types of home-made 
 bigintegers used, whch needed completely different functions to manipulate them. I replaced both types with GMP/MPIR extended precision 
 functions, whch allowed me to simply remove a significant amount of code, and we can be confident that the extended-precision functions 
 are well-documented and reliable. The division in particular was troublesome. It turned out that in some cases it is essential to use 
-floor' division and in other cases 'truncation' division must be used.
+'floor' division and in other cases 'truncation' division must be used.
 
-I also grabbed Dario Alpert's web page describing his methods and converted it to word-processor document. (this file is in the Java version repository)
+I also grabbed Dario Alpert's web page describing his methods and converted it to a word-processor document. (this file is in the Java version repository)
 
 I used Visual Studio, so non-windows users will need to adapt it.
