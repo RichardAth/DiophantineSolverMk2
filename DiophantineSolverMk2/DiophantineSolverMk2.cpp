@@ -21,7 +21,7 @@ _CrtMemState memStatDiff;        // difference between initial and current memor
 
 std::string info;
 std::string txt;
-//const std::string sq =  "²";
+//const std::string sq =  "²";        // would be nice to use, but causes problems 
 
 const std::string sq = "^2";
 const std::string msg = "There are no solutions !!!\n";
@@ -45,19 +45,20 @@ mpz_t Bi_H1, Bi_H2, Bi_K1, Bi_K2, Bi_L1, Bi_L2;
 
 int NbrSols = 0, NbrCo;
 int digitsInGroup = 6;     // used in ShowLargeNumber
-						   /* typedef for 2 dimensional vector-type arrays */
-typedef  std::vector <__mpz_struct[1]> ArrayLongs;
+
+/* typedef for vector-type arrays */
+typedef  std::vector <mpz_t> ArrayLongs;
 ptrdiff_t sortedxsize = 500;
 ptrdiff_t sizeVector = 0;
-//__mpz_struct ** sortedSolsX = { NULL };
-//__mpz_struct ** sortedSolsY = { NULL };
+ArrayLongs sortedSolsXv ;
+ArrayLongs sortedSolsYv ;
 
-mpz_t sortedSolsX[500];
+mpz_t sortedSolsX[500];     // temporary, allow up to 500 solutions, cannot be expanded
 mpz_t sortedSolsY[500];
 
 void listLargeSolutions();
 
-/* print a string variable */
+/* print a string variable. This is a relic from the original java program */
 void w(std::string texto) {
 	//	info = info.append(texto);
 	std::cout << texto;
@@ -77,11 +78,6 @@ unsigned long long llSqrt(unsigned long long num) {
 }
 
 /* Out = Nbr */
-//void LongToDoublePrecLong(long long Nbr, long long Dp_Out[]) {
-//	Dp_Out[0] = Nbr & DosALa32_1;
-//	Dp_Out[1] = (unsigned long long)Nbr >> 32;
-//	Dp_Out[2] = Dp_Out[3] = Dp_Out[4] = Dp_Out[5] = (Nbr<0 ? DosALa32_1 : 0);
-//}
 void LongToDoublePrecLong(long long Nbr, mpz_t Dp_Out) {
 	mpz_set_si(Dp_Out, Nbr);
 }
@@ -135,7 +131,7 @@ void ShowXY(long long X, long long Y) {
 	}
 }
 
-/* print values of X and Y. Called only from solveEquation */
+/* calculate and print values of X and Y. */
 void ShowX1Y1(long long X1, long long Y1, long long A, long long B, long long D,
 	long long D1, long long E1) {
 	long long X, Y;
@@ -1881,10 +1877,10 @@ void SolveElliptical(std::string x, std::string x1, std::string y) {
 	long long N0 = g_CY0*g_CY0*g - g_CY1*F1;
 	double sqrtgN0 = sqrt((double)g*(double)N0);
 
-	double R3 = (-E1 / 2 - sqrtgN0) / NegDisc;
-	double R4 = (-E1 / 2 + sqrtgN0) / NegDisc;
-	long long R2 = (long long)floor(R4);
-	long long R1 = (long long)ceil(R3);
+	double R3 = (-E1 / 2 - sqrtgN0) / NegDisc;    // get minimum for x as a real number
+	double R4 = (-E1 / 2 + sqrtgN0) / NegDisc;    // get maximum for x as a real number
+	long long R2 = (long long)floor(R4);          // get maximum for x as an integer
+	long long R1 = (long long)ceil(R3);           // get minimum for x as a real number
 
 	if (teach) {
 
@@ -1892,7 +1888,6 @@ void SolveElliptical(std::string x, std::string x1, std::string y) {
 		ShowEq(0, 0, NegDisc, 0, E1, F1, x1, y);
 		printf(" must be less than, or equal to zero. \n"
 			"This is verified in the segment limited by the roots. \n");
-		}
 		if (N0<0) {
 			std::cout << "The polynomial in " << y << " is always positive,";
 			NoSol();
@@ -1908,7 +1903,7 @@ void SolveElliptical(std::string x, std::string x1, std::string y) {
 			NoSol();
 			return;
 		}
-
+	}
 		std::cout << "All values of " << y << " from " << R1 << " to " << R2 << " should be replaced in \n";
 		ShowEq(0, 0, NegDisc, 0, E1, F1, x1, y);
 		printf(". The result should be the negative of a perfect square. \n");
@@ -1923,7 +1918,7 @@ void SolveElliptical(std::string x, std::string x1, std::string y) {
 					printf(", %lld", u);
 				}
 				else {
-					/* first solution */
+					/* first solution found*/
 					std::cout << "The values of " << y << " are: " << u;
 					b = 1;  /* set flag to show a solution was found */
 				}
@@ -1937,6 +1932,7 @@ void SolveElliptical(std::string x, std::string x1, std::string y) {
 		putchar('\n');
 
 	}
+
 	for (u = R1; u <= R2; u++) {
 		w1 = -NegDisc*u*u - E1*u - F1;
 		w2 = llSqrt(w1);
@@ -2138,7 +2134,7 @@ void solveEquation(const long long ax2, const long long bxy, const long long cy2
 		/* solve using continued fractions */
 		mpz_inits(Dp_A, Dp_B, Dp_C, NULL);  // local vars
 		mpz_inits(Dp_NUM, Dp_DEN, Bi_H1, Bi_H2, Bi_K1, Bi_K2, Bi_L1, Bi_L2, NULL);   // global vars
-		g_Disc = g_B*g_B - 4 * g_A*g_C; // get discriminant
+		g_Disc = g_B*g_B - 4 * g_A*g_C; // get discriminant again
 
 		LongToDoublePrecLong(g_A, Dp_A);   // Dp_A = A
 		LongToDoublePrecLong(g_B, Dp_B);	// Dp_B = B
@@ -2413,6 +2409,25 @@ void solveEquation(const long long ax2, const long long bxy, const long long cy2
 
 //int Eval_Exception(int);
 
+/* get a number from the input stream */
+long long getnumber(std::string msg) {
+	long long result;
+	std::cout << msg;
+	while (1) {
+		std::cin >> result;     // as result is an integer only numeric input is allowed
+		if (std::cin.good()) {
+			break;			// valid number
+		}
+		else {
+			// not a valid number
+			std::cout << "Invalid Input! Please input a numerical value.  " ;
+			std::cin.clear();               // clear error flags
+			std::cin.ignore(100000, '\n');  // discard invalid input up to newline/enter
+		}
+	}
+	return result;
+}
+
 /* Entry point for program. Get parameters and call solveEquation */
 int main(void) {
 	try {
@@ -2427,19 +2442,13 @@ int main(void) {
 		}
 		if (!test) {
 
-			std::cout << "Solve Diophantine equations of the form: a x^2 + b xy + c y^2 + dx + ey + f = 0" << "\n";
-			std::cout << "Enter value for a ";
-			std::cin >> a;
-			std::cout << "Enter value for b ";
-			std::cin >> b;
-			std::cout << "Enter value for c ";
-			std::cin >> c;
-			std::cout << "Enter value for d ";
-			std::cin >> d;
-			std::cout << "Enter value for e ";
-			std::cin >> e;
-			std::cout << "Enter value for f ";
-			std::cin >> f;
+			std::cout << "Solve Diophantine equations of the form: Ax^2 + Bxy + Cy^2 + Dx + Ey + F = 0" << "\n";
+			a = getnumber("Enter value for A ");
+			b = getnumber("Enter value for B ");
+			c = getnumber("Enter value for C ");
+			d = getnumber("Enter value for D ");
+			e = getnumber("Enter value for E ");
+			f = getnumber("Enter value for F ");
 			//std::cout << "solve " << a << "x² + " << t << "xy + " << cy2 << "y² + " << dx << "x + " << ey << "y + " << f << " = 0" << endl;
 			printf("solve %lldx^2 + %lldxy + %lldy^2 + %lldx + %lldy + %lld = 0\n", a, b, c, d, e, f);
 
@@ -2545,7 +2554,7 @@ int main(void) {
 
 			a = 2; b = 5; c = 2; d = 6; e = 6; f = 4;
 			std::cout << "\nproduct of two linear expressions\n";
-			std::cout << "(general hyperbolic with discrimint a perfect square)";
+			std::cout << "(general hyperbolic with discriminant a perfect square)";
 			solveEquation(a, b, c, d, e, f);
 
 			/* D == 0 && A != 0 && C != 0*/
