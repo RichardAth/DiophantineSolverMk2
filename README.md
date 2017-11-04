@@ -19,4 +19,6 @@ functions, whch allowed me to simply remove a significant amount of code, and we
 are well-documented and reliable. The division in particular was troublesome. It turned out that in some cases it is essential to use 
 floor' division and in other cases 'truncation' division must be used.
 
-I also grabbed Dario Alpert's web page describing his methods and converted it to word-processor document.
+I also grabbed Dario Alpert's web page describing his methods and converted it to word-processor document. (this file is in the Java version repository)
+
+I used Visual Studio, so non-windows users will need to adapt it.
