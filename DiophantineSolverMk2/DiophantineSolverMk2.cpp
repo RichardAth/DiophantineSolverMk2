@@ -448,12 +448,14 @@ void Mult2LargeNumbers(const mpz_t Bi_Nbr1, const mpz_t Bi_Nbr2, mpz_t Bi_Dest) 
 
 /* called from ShowRecursionRoot. Uses global variables:
 Bi_H1, Bi_H2, Bi_K2, Bi_L1, Bi_L2, A, C 
-return 1 if K or L not integers, otherwise zero*/
-int ShowSols(int type) {
+type = hyperbolic_homog (homogenous) or hyperbolic_gen (general hyperbolic)
+return 1 if K or L not integers, otherwise zero
+If K and L are integers, print values for P, Q, K, R, S, L*/
+int ShowSols(equation_class type) {
 
 	//std::cout << "**temp ShowSols  Bi_H2=" << numToString(Bi_H2)
 	//	<< " Bi_K2=" << numToString(Bi_K2) << " g_C=" << g_C << "\n";
-	if (type == 1) {
+	if (type == hyperbolic_gen) {
 		if (!CalculateKandL()) {     /* if K or L not integers */
 			return 1;                      /* bye */
 		}
@@ -466,11 +468,11 @@ int ShowSols(int type) {
 		ShowLargeNumber(Bi_K2);
 		printf("\nUsing the formulas: P = m\n");
 		printf("Q = -Cn \n");
-		if (type == 1) {
+		if (type == hyperbolic_gen) {
 			printf("K =CD(P+S-2) + E(B-Bm-2ACn)4AC-B^2\n");
 		}
 		printf("R = An \nS = m + Bn\n");
-		if (type == 1) {
+		if (type == hyperbolic_gen) {
 			printf("L =D(B-Bm-2ACn) + AE(P+S-2)4AC - B^2 + Dn\n");
 		}
 		printf("we obtain:\n");
@@ -480,7 +482,7 @@ int ShowSols(int type) {
 	printf("\nQ = ");
 	MultLargeNumber(-g_C, Bi_K2, Bi_H1);  // H1 = -C*K2
 	ShowLargeNumber(Bi_H1);
-	if (type == 1) {
+	if (type == hyperbolic_gen) {
 		printf("\nK = ");
 		ShowLargeNumber(Bi_L1);
 	}
@@ -490,7 +492,7 @@ int ShowSols(int type) {
 	printf("\nS = ");
 	MultAddLargeNumbers(1, Bi_H2, g_B, Bi_K2, Bi_H1);
 	ShowLargeNumber(Bi_H1);
-	if (type == 1) {
+	if (type == hyperbolic_gen) {
 		printf("\nL = ");
 		ShowLargeNumber(Bi_L2);
 	}
@@ -509,15 +511,24 @@ void AddLarge(const mpz_t Bi_Src, long long Nbr, mpz_t Bi_Dest) {
 }
 
 /* called from ShowRecursion
-type = 0 (homogenous) or 1 (general hyperbolic) 
+type = hyperbolic_homog (homogenous) or hyperbolic_gen (general hyperbolic) 
 Uses global variables Bi_H1, Bi_H2, Bi_K2, Bi_L1, Bi_L2, A, B, C, D, E */
-void ShowRecursionRoot(int type) {
-	char t;
+void ShowRecursionRoot(equation_class type) {
+	char t;   // 1 if K and L not integers, otherwise 0
 	t = ShowSols(type);
-	if (type == 1) {
+	if (type == hyperbolic_gen) {
 		ChangeSign(Bi_H2);
 		ChangeSign(Bi_K2);
-		if (t == 1 && ShowSols(1) == 1) {
+		if (t == 0) putchar('\n');    /* separate 2 sets of values for  P, Q, K, R, S, L 
+						  If there is only 1 set we just get an unneeded blank line.*/
+		//if (t == 1 && ShowSols(type) == 1) {
+		/* changed this so that ShowSols is called again even if t is 1.
+		ShowSols has an important side-effect; it prints values for P, Q, K, R, S, L
+		if it can find them. Sometimes each call produces a different but valid
+		set of values */
+		if (ShowSols(type) == 1 && t ==1) {
+			/* if we get to here we haven't yet got any values for P, Q, K, R, S, L.
+			The 3rd way below tends to produce very large numbers. */
 			if (teach) {
 				printf("m = ");
 				ShowLargeNumber(Bi_H2);
@@ -988,7 +999,7 @@ void InsertNewSolution(const mpz_t Bi_H1, mpz_t Bi_K1) {
 				}
 				if (compare == 0) {
 					/* temporary  */
-					printf("\n** duplicate solution discarded: X = ");
+					printf("** duplicate solution discarded: X = ");
 					ShowLargeNumber(Bi_H1);
 					printf("  Y = ");
 					ShowLargeNumber(Bi_K1);
@@ -1066,7 +1077,7 @@ void ShowLargeXY(std::string x, std::string y, mpz_t Bi_X, mpz_t Bi_Y,
 				}
 			}
 			if (!allSolsFound)
-				std::cout << "\n" << NbrSols << " solutions (ShowLargeXY) \n";
+				std::cout  << NbrSols << " solutions \n";
 			return;
 		}
 	}
@@ -1207,7 +1218,7 @@ void PrintLinear(std::string va) {
 
 /* called from solveEquation, SolveParabolic & SolveDiscIsSq.
 return 0 if solution found, 1 if no solutions exist, 2 if there are an infinite 
-number of solutions. (The return value is not used)
+number of solutions. 
 The equation to be solved is of the form Dx + Ey + F =0 */
 int Linear(long long D, long long E, long long F) {
 	long long Tx;
@@ -1371,10 +1382,10 @@ void ShowElipSol(long long A, long long B, long long D, long long u, std::string
 }
 
 /* called from solveEquation
-type = 0 (homogenous) or 1 (general hyperbolic)
+type = hyperbolic_homog (homogenous) or hyperbolic_gen (general hyperbolic)
 uses global variables g_A, g_B, g_C, Bi_H2*/
-void ShowRecursion(int type) {
-	std::string t1;
+void ShowRecursion(equation_class type) {
+	const std::string t1 = " integer solution of the equation \nm" + sq + " + bmn + acn" + sq + " = ";
 	mpz_t Dp_A, Dp_B, Dp_C;
 
 	mpz_inits(Dp_A, Dp_B, Dp_C, NULL);
@@ -1383,47 +1394,52 @@ void ShowRecursion(int type) {
 	ShowLargeNumber(Bi_H2);
 	std::cout << " type=" << type << "\n";*/
 
-	printf("X(n+1) = P X(n) + Q Y(n)");
-	if (type == 1)
-		printf(" + K");
-	printf("\nY(n+1) = R X(n) + S Y(n)");
-	if (type == 1)
-		printf(" + L");
-	t1 = " integer solution of the equation \nm" + sq + " + bmn + acn" + sq + " = ";
+	if (type == hyperbolic_gen) {
+		std::cout << "X(n+1) = P X(n) + Q Y(n) + K \n";		
+		std::cout << "Y(n+1) = R X(n) + S Y(n) + L \n";
+	}
+	else {
+		std::cout << "X(n+1) = P X(n) + Q Y(n) \n";
+		std::cout << "Y(n+1) = R X(n) + S Y(n) \n";
+	}
+
 	if (teach) {
-		std::cout << "\nIn order to find the values of P, Q, R, S we have to find first an" << t1;
+		std::cout << "In order to find the values of P, Q, R, S we have to find first an" << t1;
 		ShowEq(1, g_B, g_A*g_C, 0, 0, 0, "m", "n");
 		printf(" = 1. \n");
 	}
-	else {
-		putchar('\n');
-	}
-	LongToDoublePrecLong(g_A, Dp_A);         // Dp_A = A
-	LongToDoublePrecLong(g_C, Dp_B);         // Dp_B = C
+	
+	LongToDoublePrecLong(g_A, Dp_A);       // Dp_A = A
+	LongToDoublePrecLong(g_C, Dp_B);       // Dp_B = C
 	Mult2LargeNumbers(Dp_A, Dp_B, Dp_C);   // Dp_C = A*C
 	LongToDoublePrecLong(1, Dp_A);         // Dp_A = 1
-	LongToDoublePrecLong(g_B, Dp_B);         // Dp_B = B
+	LongToDoublePrecLong(g_B, Dp_B);       // Dp_B = B
 	GetRoot(Dp_A, Dp_B, Dp_C);          /* return values in Disc, SqrtDisc, Dp_NUM, Dp_DEN */
 	ContFrac(Dp_A, 2, 1, 0, 0, 1, g_A);
+
 	if (teach) {
 		std::cout << "An" << t1;
 		ShowEq(1, g_B, g_A*g_C, 0, 0, 0, "m", "n");
 		printf(" = 1 is: \n");
 	}
+
 	ShowRecursionRoot(type);
-	if (g_B != 0) {
-		if (teach) {
-			std::cout << "\nAnother" << t1;
-			ShowEq(1, g_B, g_A*g_C, 0, 0, 0, "m", "n");
-			printf(" = 1 is: \n");
-		}
-		else {
-			printf("\nas well as\n");
-		}
-		MultAddLargeNumbers(1, Bi_H2, g_B, Bi_K2, Bi_H2); /* r <- r + Bs */
-		ChangeSign(Bi_K2);            /* s <- -s */
-		ShowRecursionRoot(type);
-	}
+
+	/* big problem here!! it prints rubbish values!! */
+	//if (g_B != 0) {
+	//	if (teach) {
+	//		std::cout << "\nAnother" << t1;
+	//		ShowEq(1, g_B, g_A*g_C, 0, 0, 0, "m", "n");
+	//		printf(" = 1 is: \n");
+	//	}
+	//	else {
+	//		printf("\nas well as\n");
+	//	}
+	//	MultAddLargeNumbers(1, Bi_H2, g_B, Bi_K2, Bi_H2); /* r <- r + Bs */
+	//	ChangeSign(Bi_K2);            /* s <- -s */
+	//	ShowRecursionRoot(type);
+	//}
+
 	mpz_clears(Dp_A, Dp_B, Dp_C, NULL);
 }
 
@@ -1650,7 +1666,7 @@ void SolveSimpleHyperbolic(void) {
 void SolveParabolic(std::string x, std::string y, std::string x1) {
 	int t;
 	std::string t1;
-	long long r, s, P, P1, P2, Q, Q1, Q2, R, R1, S, S1, S2, T, u;
+	long long r, r1 =1, r2, s, P, P1, P2, Q, Q1, Q2, R, R1, S, S1, S2, T, u;
 	const long long E1 = 4 * g_A*g_E - 2 * g_B*g_D;
 	const long long F1 = 4 * g_A*g_F - g_D*g_D;
 
@@ -1660,6 +1676,7 @@ void SolveParabolic(std::string x, std::string y, std::string x1) {
 	Q = g_D;
 	R = (2 * g_A*g_E - g_B*g_D) / r;
 	S = 2 * g_A*g_F / r;
+
 	if (teach) {
 		if (s != 1) {
 			std::cout << "Multiplying the equation by " << par(s) << ":\n";
@@ -1723,6 +1740,7 @@ void SolveParabolic(std::string x, std::string y, std::string x1) {
 		ShowEq(r / 2, 0, 0, g_D, R, g_F*s, x1, y);
 		printf(" = 0 \n");
 	}
+
 	if (E1 == 0) {
 		if (teach) {
 			printf("This can be solved by the standard quadratic equation formula: \n");
@@ -1735,41 +1753,48 @@ void SolveParabolic(std::string x, std::string y, std::string x1) {
 			}
 			std::cout << " / " << par(r) << "\n";
 		}
+
 		if (F1>0) {
-			if (teach) {
-				printf("This quadratic equation has no solution in reals, so it has no solution in integers. \n");
-				also = true;
-			}
+			printf("This quadratic equation has no solution in reals, so it has no solution in integers. \n");
+			also = true;
 			return;
 		}
 
 		T = (long long)floor((-g_D + sqrt(-F1)) / r + 0.5);
+
 		if (r*T*T / 2 + g_D*T + 2 * g_A*g_F / r == 0) {
 			if (teach) {
 				std::cout << "The first root is: " << x1 << " = " << T << "\n";
 				ShowLin(s, g_B / r, 0, x, y);
 				std::cout << " = " << T << "\n";
 			}
-			Linear(s, g_B / r, -T);
+			r1 = Linear(s, g_B / r, -T);
 		}
 		else {
 			printf("The first root is not an integer. \n");
 		}
+
 		if (F1 == 0) {
 			return;
 		}
+
 		T = (long long)floor((-g_D - sqrt(-F1)) / r + 0.5);
+
 		if (r*T*T / 2 + g_D*T + 2 * g_A*g_F / r == 0) {
 			if (teach) {
 				std::cout << "The second root is: " << x1 << " = " << T << "\n";
 				ShowLin(s, g_B / r, 0, x, y);
 				std::cout << " = " << T << "\n";
 			}
-			Linear(s, g_B / r, -T);
+			r2 = Linear(s, g_B / r, -T);
 		}
 		else {
 			printf("The second root is not an integer. \n");
 		}
+
+		if (r1 == 1 && r2 == 1)
+			std::cout << msg;     // there are no solutions
+
 		return;
 	}
 
@@ -1857,6 +1882,7 @@ void SolveParabolic(std::string x, std::string y, std::string x1) {
 			numEq += numEq2;
 		}
 	}
+
 	if (teach) {
 		//w("</UL>");
 	}
@@ -1875,6 +1901,7 @@ void SolveElliptical(std::string x, std::string x1, std::string y) {
 	g_CY1 = NegDisc / g;
 	g_CY0 = E1 / 2 / g;
 	long long N0 = g_CY0*g_CY0*g - g_CY1*F1;
+	
 	double sqrtgN0 = sqrt((double)g*(double)N0);
 
 	double R3 = (-E1 / 2 - sqrtgN0) / NegDisc;    // get minimum for x as a real number
@@ -1883,16 +1910,15 @@ void SolveElliptical(std::string x, std::string x1, std::string y) {
 	long long R1 = (long long)ceil(R3);           // get minimum for x as a real number
 
 	if (teach) {
-
 		std::cout << "Since " << x1 << sq << " is always greater than, or equal to zero,\n";
 		ShowEq(0, 0, NegDisc, 0, E1, F1, x1, y);
 		printf(" must be less than, or equal to zero. \n"
 			"This is verified in the segment limited by the roots. \n");
-		if (N0<0) {
+		if (N0 < 0) {
 			std::cout << "The polynomial in " << y << " is always positive,";
 			NoSol();
 			return;
-
+		}
 		std::cout << "The roots are: (-" << par(E1) << " - llSqrt(" << numToStr(E1) << sq <<
 			" - 4 * " << par(NegDisc) << " * " << par(F1) << ")) / (2 * " << par(NegDisc) << ") = " <<
 			R3 << "\n";
@@ -1903,7 +1929,7 @@ void SolveElliptical(std::string x, std::string x1, std::string y) {
 			NoSol();
 			return;
 		}
-	}
+
 		std::cout << "All values of " << y << " from " << R1 << " to " << R2 << " should be replaced in \n";
 		ShowEq(0, 0, NegDisc, 0, E1, F1, x1, y);
 		printf(". The result should be the negative of a perfect square. \n");
@@ -1930,13 +1956,22 @@ void SolveElliptical(std::string x, std::string x1, std::string y) {
 			return;
 		}
 		putchar('\n');
-
 	}
 
+	if (N0 < 0) {
+		std::cout << "equation has no real solutions \n";
+		NoSol();
+		return;
+	}
+
+	/* try all integer values between R1 and R2*/
+	bool found = false;
 	for (u = R1; u <= R2; u++) {
 		w1 = -NegDisc*u*u - E1*u - F1;
 		w2 = llSqrt(w1);
 		if (w2*w2 == w1) {
+			/* we have found a solution */
+			found = true;
 			if (teach) {
 				std::cout << y << " = " << u << "\n";
 				std::cout << x1 << " = ";
@@ -1947,34 +1982,20 @@ void SolveElliptical(std::string x, std::string x1, std::string y) {
 			if (w2 != 0) {
 				ShowElipSol(g_A, g_B, g_D, u, x, x1, y, -w2);
 			}
-			if (teach) {
-				//w("</UL>");
-			}
 		}
 	}
-	if (teach) {
-		//w("</UL>");
+	if (!found) {
+		NoSol();
+		return;
 	}
 }
-
-/* enumerated variable used to classify type of equation */
-enum equation_class {
-	linear,                // A = B = C = 0.
-	simple_hyperbolic,     // A = C = 0; B ≠ 0. (implies B ^ 2 - 4AC > 0)
-	elliptical,            // B^2 - 4AC < 0.
-	parabolic,             // B ^ 2 - 4AC = 0
-	hyperbolic_homog,      // B ^ 2 - 4AC > 0,  D = 0, E = 0
-	hyperbolic_gen,        // B ^ 2 - 4AC > 0, not in other hyperbolic classes above
-	no_soln                // fails tests that check a solution exists.
-	                       // note, even if it passes the tests there may still be no solution
-};
 
 /* determine type of equation. Also some basic checks for cases where there is no solution,
 divide all coefficients by their gcd if gcd > 1, and calculate the discriminant */
 equation_class	classify() {
 	long long gcdA_E;
 
-	/* get gcd of A, B, C, D, E*/
+	/* get gcd of A, B, C, D, E. gcd = zero only if they are all zero*/
 	gcdA_E = gcd(g_A, gcd(g_B, gcd(g_C, gcd(g_D, g_E))));
 	if (teach) {
 		std::cout << "First of all we must determine the gcd of all coefficients but the constant term." << "\n";
@@ -1982,7 +2003,7 @@ equation_class	classify() {
 			<< gcdA_E << "\n";
 	}
 	if (gcdA_E != 0) {
-		/* should never be zero, precaution against divide-by-zero error */
+		/* protect against divide-by-zero error */
 		if (g_F%gcdA_E != 0) {
 			NoGcd(g_F);    // output message - no solution 
 			return no_soln;
@@ -2107,13 +2128,17 @@ void solveEquation(const long long ax2, const long long bxy, const long long cy2
 	y1 = y + "'";
 
 	switch (eqnType) {
-	case no_soln:
+	case no_soln: 
 		std::cout << msg;   // no solutions
 		break; 
 
-	case linear:  /* linear equation: A=B=C=0 */
-		Linear(g_D, g_E, g_F);
+	case linear: { /* linear equation: A=B=C=0 */
+		int rv = Linear(g_D, g_E, g_F);
+		if (rv == 0) {
+			std::cout << msg;   // no solutions
+		}
 		break;
+	}
 
 	case parabolic:   /* Parabolic case B^2 - 4AC = 0  A, B, C non-zero*/
 		SolveParabolic(x, y, x1);
@@ -2191,7 +2216,7 @@ void solveEquation(const long long ax2, const long long bxy, const long long cy2
 				ShowAllLargeSolutions();
 				printf("If (x,y) is a solution, (-x,-y) is also a solution.\n");
 			}
-			ShowRecursion(0);
+			ShowRecursion(eqnType);
 		}
 		else
 			std::cout << msg;   // no solutions
@@ -2316,6 +2341,7 @@ void solveEquation(const long long ax2, const long long bxy, const long long cy2
 
 			/* discriminant is not a perfect square */
 			if (N0 == 0) {
+				/* solution is x=0 (y any int) or y=0 (x any int)*/
 				ShowX1Y1(0, 0, g_A, g_B, g_D, NegDisc, E1 / 2);   // display solution
 				break;
 			}
@@ -2385,7 +2411,7 @@ void solveEquation(const long long ax2, const long long bxy, const long long cy2
 				if (!teach) {
 					ShowAllLargeSolutions();
 				}
-				ShowRecursion(1);
+				ShowRecursion(eqnType);
 			}
 			else
 				std::cout << msg;		// no solutions
@@ -2429,7 +2455,7 @@ long long getnumber(std::string msg) {
 }
 
 /* Entry point for program. Get parameters and call solveEquation */
-int main(void) {
+int main(int argc, char* argv[]) {
 	try {
 		long long int a, b, c, d, e, f;
 		char yn = '\0';
@@ -2440,8 +2466,8 @@ int main(void) {
 			std::cin >> yn;
 			test = (toupper(yn) == 'N');
 		}
-		if (!test) {
 
+		if (!test) {
 			std::cout << "Solve Diophantine equations of the form: Ax^2 + Bxy + Cy^2 + Dx + Ey + F = 0" << "\n";
 			a = getnumber("Enter value for A ");
 			b = getnumber("Enter value for B ");
@@ -2477,6 +2503,7 @@ int main(void) {
 			a = 0; b = 0; c = 0; d = 10; e = 84; f = 15;
 			solveEquation(a, b, c, d, e, f);
 
+			/* example numbers below refer to Dario Alpert's document. */
 			printf("\nExample 1 (linear)\n");
 			/* x = -136 + 42t,  y = 16 - 5t,  where t is any integer number.
 			equivalent to: x = -10 +42t     y = 1-5t      (substitute t+3 for t) */
@@ -2538,7 +2565,6 @@ int main(void) {
 			//teach = true;
 			a = 18; b = 41; c = 19; d = 0; e = 0; f = -24;
 			/*
-			this is called a homogeneous equation
 			basic solutions are:
 			x = -10,							y =  6
 			X = -7								Y =  11
@@ -2552,6 +2578,26 @@ int main(void) {
 			*/
 			solveEquation(a, b, c, d, e, f);
 
+			printf("\nExample 6\n");
+			a = 3; b = 13; c = 5; d = -11; e = -7; f = -92;
+			/* x=-4, y=0, or  x=2, y=3 etc
+			P=8351, Q=32625, R=-19575, S=-76474, K=-28775, L=67450*/
+			solveEquation(a, b, c, d, e, f);
+
+			printf("\nExample 6 - modified to produce 2 sets of values for P, Q, R, ...\n");
+			/* x=-4, y=0, x=12, y=-2 etc
+			   P= 8351, Q=32625, R=-19575, S=-76474, K=-775, L= 1825
+			or P=-8351, Q=32625, R= 19575, S= 76474, K= 783, L=-1827*/
+			a = 3; b = 13; c = 5; d = -11; e = -42; f = -92;
+			
+			solveEquation(a, b, c, d, e, f);
+
+			printf("\nExample 7\n");
+			/* x=4, y=7 etc
+			P = -1188641 Q = -4979520 K = 5146869 R = 2489760 S = 10430239 L = -10780770 */
+			a = 3; b = 14; c = 6; d = -17; e = -23; f = -505;
+			solveEquation(a, b, c, d, e, f);
+
 			a = 2; b = 5; c = 2; d = 6; e = 6; f = 4;
 			std::cout << "\nproduct of two linear expressions\n";
 			std::cout << "(general hyperbolic with discriminant a perfect square)";
@@ -2562,9 +2608,12 @@ int main(void) {
 			a = 18; b = 41; c = 19; d = 0; e = 0; f = 13;
 			solveEquation(a, b, c, d, e, f);
 
-
-			std::cout << "Elliptical, no solutions\n";
+			std::cout << "\nElliptical, no solutions\n";
 			a = -1; b = -1; c = -2; d = -3; e = -4; f = -5;
+			solveEquation(a, b, c, d, e, f);
+
+			std::cout << "\nElliptical, no solutions\n";
+			a = 1; b = 0; c = 1; d = -0; e = 0; f = -6;
 			solveEquation(a, b, c, d, e, f);
 		}
 		
@@ -2594,7 +2643,7 @@ int main(void) {
 		exit(EXIT_FAILURE);
 	}
 
-	catch (...) {   // catch block will only be executed under /EHa 
+	catch (...) {   // catch block should only be executed under /EHa 
 		/* most likely to be a SEH-type exception */
 		//Eval_Exception(GetExceptionCode());
 		std::cerr << "Caught unknown exception in catch(...)." << std::endl;

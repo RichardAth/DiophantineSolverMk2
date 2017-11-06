@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #define _CRTDBG_MAP_ALLOC  
 #include <stdlib.h>  
@@ -63,3 +63,14 @@ void ShowBigEq(mpz_t Dp_A, mpz_t Dp_B, mpz_t Dp_C, std::string x, std::string y)
 void GetRoot(mpz_t Dp_A, mpz_t Dp_B, mpz_t Dp_C);
 int Compare(const mpz_t Bi_array, const mpz_t Bi_K1);
 
+/* enumerated variable used to classify type of equation */
+enum equation_class {
+	linear,                // A = B = C = 0.
+	simple_hyperbolic,     // A = C = 0; B ≠ 0. (implies B ^ 2 - 4AC > 0)
+	elliptical,            // B^2 - 4AC < 0.
+	parabolic,             // B ^ 2 - 4AC = 0
+	hyperbolic_homog,      // B ^ 2 - 4AC > 0,  D = 0, E = 0
+	hyperbolic_gen,        // B ^ 2 - 4AC > 0, not in other hyperbolic classes above
+	no_soln                // fails tests that check a solution exists.
+						   // note, even if it passes the tests there may still be no solution
+};
