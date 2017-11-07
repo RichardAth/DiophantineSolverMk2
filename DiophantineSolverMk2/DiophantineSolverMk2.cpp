@@ -732,24 +732,14 @@ void GetRoot(mpz_t Dp_A, mpz_t Dp_B, mpz_t Dp_C) {
 		if (!NUMis0) {  // print NUM if it's not zero
 						//w("(Sqrt(" + numToStr(Disc) + ") ");
 						//printf("(Sqrt(%lld) ", Disc);
-			/*if (Dp_NUM[5] < DosALa31) {
-				printf("+ ");
-			}
-			else {
-				printf("- ");
-			}
-			std::cout << numToString(Dp_NUM) << ") ";*/
-			gmp_printf("%+Zd) ", Dp_NUM);
+			gmp_printf("%+Zd) ", Dp_NUM);  // print num with sign + or -
 		}
-		else {
-			//w("Sqrt(" + numToStr(Disc) + ") /");
-			//printf("Sqrt(%lld) ", Disc);
-		}
+
 		if (IsNeg(Dp_DEN )) {
-			std::cout << " / (" << numToStr(Dp_DEN) << ")";
+			std::cout << " / (" << numToStr(Dp_DEN) << ")";  // print /(-den) if negative
 		}
 		else {
-			std::cout << " / " << numToStr(Dp_DEN);
+			std::cout << " / " << numToStr(Dp_DEN);          // print /den if positive
 		}
 		putchar('\n');
 	}
@@ -788,14 +778,7 @@ void GetRoot(mpz_t Dp_A, mpz_t Dp_B, mpz_t Dp_C) {
 		//w("Sqrt(" + numToStr(Disc) + ")");
 		printf("Sqrt(%lld)", g_Disc);
 		if (!NUMis0) {
-			/*if (Dp_NUM[5] < DosALa31) {
-				printf(" + ");
-			}
-			else {
-				printf(" - ");
-			}
-			std::cout << numToString(Dp_NUM);*/
-			gmp_printf("%+Zd", Dp_NUM);
+			gmp_printf("%+Zd", Dp_NUM);   // print NUM with sign + or - 
 		}
 		if (!DENis1) {
 			if (NUMis0) {
@@ -806,11 +789,11 @@ void GetRoot(mpz_t Dp_A, mpz_t Dp_B, mpz_t Dp_C) {
 			}
 		}
 		if (IsNeg(Dp_DEN)) {
-			std::cout << "(" << numToStr(Dp_DEN) << ")";
+			std::cout << "(" << numToStr(Dp_DEN) << ")";  // print (-DEN)
 		}
 		else {
 			if (!DENis1) {
-				std::cout << numToStr(Dp_DEN);
+				std::cout << numToStr(Dp_DEN);            // print DEN
 			}
 		}
 		putchar('\n');
@@ -1137,7 +1120,7 @@ void ShowAllLargeSolutions() {
 			false, "", "");
 		putchar('\n');*/
 		std::cout << "X= ";     ShowLargeNumber(sortedSolsX[i]);
-		std::cout << "  \tY= "; ShowLargeNumber(sortedSolsY[i]);
+		std::cout << "  \tY= "; ShowLargeNumber(sortedSolsY[i]);  // tab makes output a bit more tidy
 		std::cout << "\n";
 		mpz_clear(sortedSolsX[i]);  // avoid memory leakage
 		mpz_clear(sortedSolsY[i]);
@@ -2553,10 +2536,10 @@ int main(int argc, char* argv[]) {
 			Xn+1 = PXn + QYn + K
 			Yn+1 = RXn + SYn + L
 			where:
-			P = -9
-			Q = 20
-			K = 28
-			R = -4
+			P = -9		    
+			Q = 20		or -20
+			K = 28		or -28
+			R = 4		or -4
 			S = -9
 			L = -14
 			*/

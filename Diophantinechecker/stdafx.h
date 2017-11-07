@@ -12,5 +12,6 @@
 #include <iostream>
 #include <cstring>
 #include <string>
+#include <Windows.h>
 
 // TODO: reference additional headers your program requires here
