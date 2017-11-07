@@ -1,4 +1,8 @@
-﻿#include "stdafx.h"
+﻿#define _CRTDBG_MAP_ALLOC  
+#include <stdlib.h>  
+#include <crtdbg.h>  
+
+#include "stdafx.h"
 #include <windows.h> 
 // Diophantine Quadratic Equation Solver
 // ax^2 + bxy + cy^2 + dx + ey + f = 0 (unknowns x,y integer numbers)
@@ -47,14 +51,13 @@ int NbrSols = 0, NbrCo;
 int digitsInGroup = 6;     // used in ShowLargeNumber
 
 /* typedef for vector-type arrays */
-typedef  std::vector <mpz_t> ArrayLongs;
-ptrdiff_t sortedxsize = 500;
-ptrdiff_t sizeVector = 0;
+typedef  std::vector <void *> ArrayLongs;
+
 ArrayLongs sortedSolsXv ;
 ArrayLongs sortedSolsYv ;
 
-mpz_t sortedSolsX[500];     // temporary, allow up to 500 solutions, cannot be expanded
-mpz_t sortedSolsY[500];
+//mpz_t sortedSolsX[500];     // temporary, allow up to 500 solutions, cannot be expanded
+//mpz_t sortedSolsY[500];
 
 void listLargeSolutions();
 
@@ -958,17 +961,27 @@ int Compare(const mpz_t Bi_array, const mpz_t Bi_K1) {
 	return mpz_cmp(Bi_array, Bi_K1);
 }
 
-/* Insert new number into sorted solutions vector */
-/* performing a binary search                     */
-/* called from ShowLargeXY                         */
+int Comparev(const void * Bi_array, const mpz_t Bi_K1) {
+	mpz_t temp;
+	memcpy(temp, Bi_array, sizeof(mpz_t));
+	return mpz_cmp(temp, Bi_K1);
+}
+
+/* Insert new number into sorted solutions vector                             */
+/* performing a binary search                                                 */
+/* called from ShowLargeXY                                                    */
+/* Note: an mpz_t is in fact a structure which is not a type that is supported 
+by the std::vector STL so the mpz_t structures and the values they contain are
+are copied from the stack to  blocks in the heap and the vectors contain pointers 
+to the copies on the heap. */
 void InsertNewSolution(const mpz_t Bi_H1, mpz_t Bi_K1) {
-	ptrdiff_t indexVector= 0, increment, compare;
-	
+	ptrdiff_t indexVector= 0, compare;
+	size_t sizeVector = 0, increment;
 	/* temporary  */
-	/*printf("\n**temp InsertNewSolution X = "); ShowLargeNumber(Bi_H1); 
-	printf("  Y = "); ShowLargeNumber(Bi_K1); putchar('\n');*/
+	//gmp_printf("\n**temp InsertNewSolution X = %Zd  Y = %Zd\n", Bi_H1, Bi_K1);  
 	/* end temporary */
 
+	sizeVector = sortedSolsYv.size();
 	if (sizeVector > 0) {  // is there already something in the list?
 		increment = 1;
 		while (increment * 2 <= sizeVector) {
@@ -976,17 +989,17 @@ void InsertNewSolution(const mpz_t Bi_H1, mpz_t Bi_K1) {
 		}
 		while (increment > 0) {  /* Perform binary search */
 			if (indexVector + increment <= sizeVector) {
-				compare = Compare(sortedSolsX[indexVector + increment - 1], Bi_H1);
+				compare = Comparev(sortedSolsXv[indexVector + increment - 1], Bi_H1);
 				if (compare == 0) {
-					compare = Compare(sortedSolsY[indexVector + increment - 1], Bi_K1);
+					compare = Comparev(sortedSolsYv[indexVector + increment - 1], Bi_K1);
 				}
 				if (compare == 0) {
 					/* temporary  */
-					printf("** duplicate solution discarded: X = ");
+					/*printf("** duplicate solution discarded: X = ");
 					ShowLargeNumber(Bi_H1);
 					printf("  Y = ");
 					ShowLargeNumber(Bi_K1);
-					putchar('\n');
+					putchar('\n');*/
 					/* end temporary */
 					return;  // if solution already in list don't add it again
 				}
@@ -998,18 +1011,26 @@ void InsertNewSolution(const mpz_t Bi_H1, mpz_t Bi_K1) {
 		}
 	}
 
-	NbrSols++;
-	sizeVector++;
-	//std::cout << "**temp InsertNewSolution NbrSols =" << NbrSols << "\n";
+	mpz_t H1, K1;
+	mpz_init_set(H1, Bi_H1);  // copy the values
+	mpz_init_set(K1, Bi_K1);
 
-	ptrdiff_t length = sizeof(sortedSolsX) - sizeof(sortedSolsX[0])*(indexVector+1);
-	if (length > 0) {
-		memmove(&sortedSolsX[indexVector + 1], &sortedSolsX[indexVector], length);
-		memmove(&sortedSolsY[indexVector + 1], &sortedSolsY[indexVector], length);
-	}
-	mpz_init_set(sortedSolsX[indexVector], Bi_H1); 
-	mpz_init_set(sortedSolsY[indexVector], Bi_K1);
-	assert(_CrtCheckMemory());
+	void *Hcopy, *Kcopy;
+	Hcopy = malloc(sizeof(mpz_t));
+	assert(Hcopy != NULL);
+	Kcopy = malloc(sizeof(mpz_t));
+	assert(Kcopy != NULL);
+	memcpy(Hcopy, H1, sizeof(mpz_t));  // copy the mpz_t structures to a heap area
+	memcpy(Kcopy, K1, sizeof(mpz_t));
+
+	NbrSols++;
+	//cout << "**temp InsertNewSolution NbrSols =" << NbrSols << "\n";
+	ArrayLongs::iterator itX = sortedSolsXv.begin() + indexVector;
+	ArrayLongs::iterator itY = sortedSolsYv.begin() + indexVector;
+	sortedSolsXv.insert(itX, Hcopy);
+	sortedSolsYv.insert(itY, Kcopy);
+	listLargeSolutions();    // temporary
+	assert(_CrtCheckMemory());   // check for heap corruption
 }
 
 /* convert num to digits, in brackets if -ve*/
@@ -1110,31 +1131,42 @@ void ShowLargeXY(std::string x, std::string y, mpz_t Bi_X, mpz_t Bi_Y,
 InsertNewSolution function.
 Note that solutions are deleted after they are printed, making the vector
 ready for reuse, but this function can only be called once. */
-void ShowAllLargeSolutions() {
-	ptrdiff_t i;
 
+void ShowAllLargeSolutions() {
+	size_t i;
+	mpz_t xtemp, ytemp;
 	allSolsFound = true;
 	also = false;
-	for (i = 0; i < sizeVector; i++) {
-		/*ShowLargeXY("X", "Y", sortedSolsX[i], sortedSolsY[i],
-			false, "", "");
-		putchar('\n');*/
-		std::cout << "X= ";     ShowLargeNumber(sortedSolsX[i]);
-		std::cout << "  \tY= "; ShowLargeNumber(sortedSolsY[i]);  // tab makes output a bit more tidy
+
+	for (i = 0; i < sortedSolsYv.size(); i++) {
+		memcpy(xtemp, sortedSolsXv[i], sizeof(mpz_t));
+		memcpy(ytemp, sortedSolsYv[i], sizeof(mpz_t));
+		std::cout << "X= ";     ShowLargeNumber(xtemp);
+		std::cout << "  \tY= "; ShowLargeNumber(ytemp);  // tab makes output a bit more tidy
 		std::cout << "\n";
-		mpz_clear(sortedSolsX[i]);  // avoid memory leakage
-		mpz_clear(sortedSolsY[i]);
+		//gmp_printf("X= %Zd, \tY= %Zd \n", xtemp, ytemp);
+		mpz_clear(xtemp);  // avoid memory leakage
+		mpz_clear(ytemp);
+		free(sortedSolsXv[i]);
+		free(sortedSolsYv[i]);
 	}
-	sizeVector = 0;
-	assert(_CrtCheckMemory());
+	sortedSolsXv.clear();		// clear vectors to initial state.
+	sortedSolsXv.shrink_to_fit();   // avoid spurious memory leakage report
+	sortedSolsYv.clear();
+	sortedSolsYv.shrink_to_fit();
+	assert(_CrtCheckMemory());     // check for heap corruption
 }
+
 
 /* quick print of sortedSols - for testing */
 void listLargeSolutions() {
-	int i;
-	
+	long long  i;
+	long long sizeVector = sortedSolsYv.size();
+	mpz_t xtemp, ytemp;
 	for (i = 0; i < sizeVector; i++) {
-		gmp_printf("X= %Zd, Y= %Zd \n", sortedSolsX[i], sortedSolsY[i]);
+		memcpy(xtemp, sortedSolsXv.at(i), sizeof(mpz_t));
+		memcpy(ytemp, sortedSolsYv.at(i), sizeof(mpz_t));
+		gmp_printf("X= %Zd, Y= %Zd \n", xtemp, ytemp);
 	}
 }
 
@@ -2411,8 +2443,11 @@ void solveEquation(const long long ax2, const long long bxy, const long long cy2
 	
 	assert(_CrtCheckMemory());        /* check for heap corruption &  */
 	_CrtMemCheckpoint(&memState2); /* check for memory leakage*/
-	if (_CrtMemDifference(&memStatDiff, &memState1, &memState2))
+	if (_CrtMemDifference(&memStatDiff, &memState1, &memState2)) {
+		std::cerr << "** there seems to have been a memory leak";
 		_CrtMemDumpStatistics(&memStatDiff);
+		_CrtDumpMemoryLeaks();
+	}
 }
 
 
