@@ -2631,10 +2631,6 @@ int main(int argc, char* argv[]) {
 			solveEquation(a, b, c, d, e, f);
 		}
 		
-		long long x = 1;
-		long long y = x / 0;       // divide error  - test exception code
-		std::cout << std::endl;
-
 		system("PAUSE");   // press any key to continue
 		return EXIT_SUCCESS;
 	}
