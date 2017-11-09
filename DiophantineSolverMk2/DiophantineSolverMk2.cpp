@@ -2145,7 +2145,7 @@ void solveEquation(const long long ax2, const long long bxy, const long long cy2
 
 	case linear: { /* linear equation: A=B=C=0 */
 		int rv = Linear(g_D, g_E, g_F);
-		if (rv == 0) {
+		if (rv == 1) {
 			std::cout << msg;   // no solutions
 		}
 		break;
