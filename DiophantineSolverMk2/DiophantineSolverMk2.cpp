@@ -56,9 +56,6 @@ typedef  std::vector <void *> ArrayLongs;
 ArrayLongs sortedSolsXv ;
 ArrayLongs sortedSolsYv ;
 
-//mpz_t sortedSolsX[500];     // temporary, allow up to 500 solutions, cannot be expanded
-//mpz_t sortedSolsY[500];
-
 void listLargeSolutions();
 
 /* print a string variable. This is a relic from the original java program */
@@ -365,8 +362,6 @@ long long DivDoublePrec(const mpz_t n, const mpz_t d) {
 	mpz_clears(q, r, NULL);		           // avoid memory leakage
 	return llquot;
 }
-
-
 
 /*  Dest = Cprev*Bi_Prev + CAct*Bi_Act */
 void MultAddLargeNumbers(long long CPrev, const mpz_t Bi_Prev,
@@ -989,9 +984,9 @@ void InsertNewSolution(const mpz_t Bi_H1, mpz_t Bi_K1) {
 		}
 		while (increment > 0) {  /* Perform binary search */
 			if (indexVector + increment <= sizeVector) {
-				compare = Comparev(sortedSolsXv[indexVector + increment - 1], Bi_H1);
+				compare = Comparev(sortedSolsXv.at(indexVector + increment - 1), Bi_H1);
 				if (compare == 0) {
-					compare = Comparev(sortedSolsYv[indexVector + increment - 1], Bi_K1);
+					compare = Comparev(sortedSolsYv.at(indexVector + increment - 1), Bi_K1);
 				}
 				if (compare == 0) {
 					/* temporary  */
@@ -1011,9 +1006,10 @@ void InsertNewSolution(const mpz_t Bi_H1, mpz_t Bi_K1) {
 		}
 	}
 
-	mpz_t H1, K1;
-	mpz_init_set(H1, Bi_H1);  // copy the values
-	mpz_init_set(K1, Bi_K1);
+	mpz_t H1, K1;             // copy the values. The structure itself
+	mpz_init_set(H1, Bi_H1);  // is copied to a stack variable. the value is copied to
+	mpz_init_set(K1, Bi_K1);  // a new block from the heap
+							  
 
 	void *Hcopy, *Kcopy;
 	Hcopy = malloc(sizeof(mpz_t));
@@ -1029,7 +1025,7 @@ void InsertNewSolution(const mpz_t Bi_H1, mpz_t Bi_K1) {
 	ArrayLongs::iterator itY = sortedSolsYv.begin() + indexVector;
 	sortedSolsXv.insert(itX, Hcopy);
 	sortedSolsYv.insert(itY, Kcopy);
-	listLargeSolutions();    // temporary
+	//listLargeSolutions();    // temporary
 	assert(_CrtCheckMemory());   // check for heap corruption
 }
 
@@ -1134,17 +1130,17 @@ ready for reuse, but this function can only be called once. */
 
 void ShowAllLargeSolutions() {
 	size_t i;
-	mpz_t xtemp, ytemp;
+	mpz_t xtemp, ytemp;    // note these are NOT initialised by mpz_set
 	allSolsFound = true;
 	also = false;
 
 	for (i = 0; i < sortedSolsYv.size(); i++) {
-		memcpy(xtemp, sortedSolsXv[i], sizeof(mpz_t));
-		memcpy(ytemp, sortedSolsYv[i], sizeof(mpz_t));
+		memcpy(xtemp, sortedSolsXv.at(i), sizeof(mpz_t));
+		memcpy(ytemp, sortedSolsYv.at(i), sizeof(mpz_t));
 		std::cout << "X= ";     ShowLargeNumber(xtemp);
 		std::cout << "  \tY= "; ShowLargeNumber(ytemp);  // tab makes output a bit more tidy
 		std::cout << "\n";
-		//gmp_printf("X= %Zd, \tY= %Zd \n", xtemp, ytemp);
+
 		mpz_clear(xtemp);  // avoid memory leakage
 		mpz_clear(ytemp);
 		free(sortedSolsXv[i]);

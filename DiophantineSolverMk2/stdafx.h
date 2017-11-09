@@ -16,6 +16,7 @@
 #include <csignal>
 #include <mpir.h>
 #include "diophantine.h"
+#include "boost/multiprecision/gmp.hpp" 
 
 
 

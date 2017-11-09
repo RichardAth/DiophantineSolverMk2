@@ -2,6 +2,7 @@
 // This is a little program that can take the output from diophantine solver as input 
 // and check that the values are correct.
 
+#include <boost/multiprecision/gmp.hpp>
 #include "stdafx.h"
 
 /* get a number from the input stream */
@@ -25,7 +26,21 @@ long long getnumber(std::string msg) {
 	return result;
 }
 
+/* test boost multi-precision integers */
+//void fact() {
+//	using namespace boost::multiprecision;
+//
+//	mpz_int v = 1;
+//
+//	// Do some arithmetic:
+//	for (unsigned i = 1; i <= 1000; ++i)
+//		v *= i;
+//
+//	std::cout << "1000!= " << v << std::endl; // prints 1000!
+//}
+
 int main(int argc, char* argv[]) {
+	//fact();
 	long long int a, b, c, d, e, f, x, y, value;
 	long long xlist[100], ylist[100], listcount = 0;
 	long long int p, q, r, s, k, l, x1, y1;
