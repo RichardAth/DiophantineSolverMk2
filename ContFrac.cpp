@@ -31,13 +31,11 @@ void NextConv(mpz_t Bi_Prev, mpz_t Bi_Act, const long long A1,
 	const long long A2, const long long B1, const long long B2) {
 	mpz_t t1, t2, tmp;
 
-#ifdef test
-	std::cout << "**temp NextConv: Prev = ";
+	/*std::cout << "**temp NextConv: Prev = ";
 	ShowLargeNumber(Bi_Prev);
 	std::cout << " Act =";
 	ShowLargeNumber(Bi_Act);
-	std::cout << " A1 =" << A1 << " A2=" << A2 << " B1=" << B1 << " B2=" << B2 << "\n";	
-#endif
+	std::cout << " A1 =" << A1 << " A2=" << A2 << " B1=" << B1 << " B2=" << B2 << "\n";	*/
 
 	mpz_inits(t1, t2, tmp, NULL);
 	mpz_mul_si(t1, Bi_Prev, A1);   // t1 = Prev * A1
@@ -53,32 +51,23 @@ void NextConv(mpz_t Bi_Prev, mpz_t Bi_Act, const long long A1,
 	mpz_clears(t1, t2, tmp, NULL);   // avoid memory leakage
 
 	/* temporary */
-#ifdef test
-	std::cout << "**exit NextConv: Prev = ";
+	/*std::cout << "**exit NextConv: Prev = ";
 	ShowLargeNumber(Bi_Prev);
 	std::cout << " Act =";
 	ShowLargeNumber(Bi_Act);
-	std::cout << "\n\n";
-#endif
+	std::cout << "\n\n";*/
 	/* end temporary */
 }
-/***************************************************************************
-* type = 1: Find convergents                                               *
-* type = 2: Find convergents for x^2 + Bxy + ACy^2 = 1 (recursion)         *
-* type = 3: Find convergents for modified equation in homogeneous equation *
-* type = 4: Find convergents for modified equation in complete solution    *
-* type = 5: Find convergents for x^2 + Bxy + ACy^2 = 1 (mod B^2-4AC)       *
-* uses global variables Bi_L1, Bi_L2, g_A, g_B, g_D, g_F, g_CY0, g_CY1    */
+
+/* uses global variables Bi_L1, Bi_L2, g_A, g_B, g_D, g_F, g_CY0, g_CY1*/
 bool ShowHomoSols(int type, mpz_t Bi_SHH, mpz_t Bi_SHK, long long s, long long T,
 	const long long MagnifY, const std::string eqX, const std::string eqY) {
 
 	assert(_CrtCheckMemory());
 
-#ifdef test
-	std::cout << "**temp ShowHomoSols: s=" << s << "  T=" << T << "  MagnifY=" << MagnifY << "\n";
-	std::cout << "Bi_SHH="; ShowLargeNumber(Bi_SHH);
-	std::cout << "  Bi_SHK="; ShowLargeNumber(Bi_SHK); std::cout << "\n";
-#endif
+	/*std::cout << "**temp ShowHomoSols: s=" << s << "  T=" << T << "  MagnifY=" << MagnifY << "\n";
+	std::cout << "Bi_SH1="; ShowLargeNumber(Bi_SH1);
+	std::cout << "  Bi_SHK1="; ShowLargeNumber(Bi_SHK1); std::cout << "\n";*/
 
 	int i;
 	std::string U = (type == 4 ? "'" : "");
@@ -100,10 +89,8 @@ bool ShowHomoSols(int type, mpz_t Bi_SHH, mpz_t Bi_SHK, long long s, long long T
 	MultAddLargeNumbers(s*T, Bi_SHH, -g_F*T, Bi_SHK, Bi_L1);  // result stored in Bi_L1
 	MultLargeNumber(T, Bi_SHH, Bi_L2);
 
-#ifdef test
-	std::cout << "**temp ShowHomoSols(1) Bi_L1="; 	ShowLargeNumber(Bi_L1);
-	std::cout << "  Bi_L2="; ShowLargeNumber(Bi_L2); std::cout << "\n";
-#endif
+	/*std::cout << "**temp ShowHomoSols(1) Bi_L1="; 	ShowLargeNumber(Bi_L1);
+	std::cout << "  Bi_L2="; ShowLargeNumber(Bi_L2); std::cout << "\n";*/
 
 	if (type == 4) {
 		if (teach) {
@@ -111,26 +98,21 @@ bool ShowHomoSols(int type, mpz_t Bi_SHH, mpz_t Bi_SHK, long long s, long long T
 		}
 		for (i = (IsZero(Bi_L1) && IsZero(Bi_L2) ? 1 : 0); i<2; i++) {
 			AddLarge(Bi_L2, -g_CY0, Bi_L2);
-#ifdef test
-			std::cout << "**temp ShowHomoSols(2) Bi_L2="; 	ShowLargeNumber(Bi_L2); std::cout << "\n";
-#endif
+			//std::cout << "**temp ShowHomoSols(2) Bi_L2="; 	ShowLargeNumber(Bi_L2); std::cout << "\n";
+
 			if (teach) {
 				std::cout << Y1 << "0 = (";
 				ShowLin(0, i == 0 ? 1 : -1, -g_CY0, "", Y1 + "0");
 				std::cout << ")/" << par(g_CY1) << "\n";
 			}
 			if (tDivLargeNumber(Bi_L2, g_CY1, Bi_L2) != 0) {
-#ifdef test
-				std::cout << "**temp ShowHomoSols(3) Bi_L2="; 	ShowLargeNumber(Bi_L2); std::cout << "\n";
-#endif
+				//std::cout << "**temp ShowHomoSols(3) Bi_L2="; 	ShowLargeNumber(Bi_L2); std::cout << "\n";
 				if (teach) {
 					printf("It is not an integer number. \n");
 				}
 			}
 			else {
-#ifdef test
-				std::cout << "**temp ShowHomoSols(4) Bi_L2="; 	ShowLargeNumber(Bi_L2); std::cout << "\n";
-#endif
+				//std::cout << "**temp ShowHomoSols(4) Bi_L2="; 	ShowLargeNumber(Bi_L2); std::cout << "\n";
 				if (teach) {
 					std::cout << X1 << "0 = (";
 					ShowLin(i == 0 ? 1 : -1, -g_B, -g_D, X1 + "0", Y1 + "0");
@@ -138,21 +120,15 @@ bool ShowHomoSols(int type, mpz_t Bi_SHH, mpz_t Bi_SHK, long long s, long long T
 				}
 				AddLarge(Bi_L1, -g_D, Bi_L1);  // L1 -= D
 				MultAddLargeNumbers(1, Bi_L1, -g_B, Bi_L2, Bi_L1);  // store result in L1
-#ifdef test
-				std::cout << "**temp ShowHomoSols(5) Bi_L1="; 	ShowLargeNumber(Bi_L1); std::cout << "\n";
-#endif
+				//std::cout << "**temp ShowHomoSols(5) Bi_L1="; 	ShowLargeNumber(Bi_L1); std::cout << "\n";
 				if (tDivLargeNumber(Bi_L1, 2 * g_A, Bi_L1) != 0) {
-#ifdef test
-					std::cout << "**temp ShowHomoSols(6) Bi_L1="; 	ShowLargeNumber(Bi_L1); std::cout << "\n";
-#endif
+					//std::cout << "**temp ShowHomoSols(6) Bi_L1="; 	ShowLargeNumber(Bi_L1); std::cout << "\n";
 					if (teach) {
 						printf("It is not an integer number. \n");
 					}
 				}
 				else {
-#ifdef test
-					std::cout << "**temp ShowHomoSols(7) Bi_L1="; 	ShowLargeNumber(Bi_L1); std::cout << "\n";
-#endif
+					//std::cout << "**temp ShowHomoSols(7) Bi_L1="; 	ShowLargeNumber(Bi_L1); std::cout << "\n";
 					if (teach) {
 						if (MagnifY != 1) {
 							ShowLargeXY(X1, Y1, Bi_L1, Bi_L2, false, "", "");
@@ -162,23 +138,20 @@ bool ShowHomoSols(int type, mpz_t Bi_SHH, mpz_t Bi_SHK, long long s, long long T
 					}
 					MultLargeNumber(MagnifY, Bi_L2, Bi_L2);
 					ShowLargeXY("X", "Y", Bi_L1, Bi_L2, false, "", "");
-#ifdef test
-					std::cout << "**temp ShowHomoSols(8) returns true: Bi_L1="; ShowLargeNumber(Bi_L1);
-					std::cout << "  Bi_L2="; ShowLargeNumber(Bi_L2); std::cout << "\n";
-#endif
+
+					/*std::cout << "**temp ShowHomoSols(8) returns true: Bi_L1="; ShowLargeNumber(Bi_L1);
+					std::cout << "  Bi_L2="; ShowLargeNumber(Bi_L2); std::cout << "\n";*/
+
 					return true;
 				}
 			}
+			//gmp_printf("**temp ShowHomoSols(9) Bi_L1= %lld*%Zd + %lld*%Zd =", -s*T, Bi_SH1, g_F*T, Bi_SHK1);
 
-#ifdef test
-			gmp_printf("**temp ShowHomoSols(9) Bi_L1= %lld*%Zd + %lld*%Zd =", -s*T, Bi_SH1, g_F*T, Bi_SHK1);
-#endif
 			MultAddLargeNumbers(-s*T, Bi_SHH, g_F*T, Bi_SHK, Bi_L1);
 			MultLargeNumber(-T, Bi_SHH, Bi_L2);
-#ifdef test
-			ShowLargeNumber(Bi_L1);
-			std::cout << "  Bi_L2="; ShowLargeNumber(Bi_L2); std::cout << "\n";
-#endif
+
+			/*ShowLargeNumber(Bi_L1);
+			std::cout << "  Bi_L2="; ShowLargeNumber(Bi_L2); std::cout << "\n";*/
 		}
 	}
 	else {
@@ -199,18 +172,16 @@ bool ShowHomoSols(int type, mpz_t Bi_SHH, mpz_t Bi_SHK, long long s, long long T
 			ChangeSign(Bi_L1);
 			ChangeSign(Bi_L2);
 		}
-#ifdef test
-		std::cout << "**temp ShowHomoSols(10) returns true: Bi_L1=";
+
+		/*std::cout << "**temp ShowHomoSols(10) returns true: Bi_L1=";
 		ShowLargeNumber(Bi_L1);
 		std::cout << "  Bi_L2=";
 		ShowLargeNumber(Bi_L2);
-		std::cout << "\n";
-#endif
+		std::cout << "\n";*/
+
 		return true;
 	}
-#ifdef test
-	std::cout << "**temp ShowHomoSols(11) returns false \n";
-#endif
+	//std::cout << "**temp ShowHomoSols(11) returns false \n";
 	return false;   // solution not found
 }
 
@@ -226,12 +197,12 @@ bool ShowHomoSols(int type, mpz_t Bi_SHH, mpz_t Bi_SHK, long long s, long long T
 ****************************************************************************/
 bool ContFrac(const mpz_t Dp_A, int type, const int SqrtSign, long long s, long long T,
 	long long MagnifY, long long A) {
-#ifdef test
-	std::cout << "**temp ContFrac: type=" << type << "  SqrtSign=" << SqrtSign << "  s=" << s;
+
+	/*std::cout << "**temp ContFrac: type=" << type << "  SqrtSign=" << SqrtSign << "  s=" << s;
 	std::cout << "  T=" << T << "  MagnifY=" << MagnifY << "  A=" << A << "\n";
-	std::cout << "Dp_NUM=" << numToStr(Dp_NUM);
-	std::cout << "  Dp_DEN=" << numToStr(Dp_DEN) << "\n";
-#endif
+	std::cout << "Dp_NUM=" << numToString(Dp_NUM);
+	std::cout << "  Dp_DEN=" << numToString(Dp_DEN) << "\n";*/
+
 	long long P, Z, M, P1, M1, Tmp, K, L, Mu;
 	mpz_t Dp_P,  Dp_M, Dp_Z, Dp_G, Dp_Mu, Dp_K, Dp_L, Dp_M1, Dp_P1, Dp_zz;
 	long long H1ModCY1 = 1, H2ModCY1 = 0, K1ModCY1 = 0, K2ModCY1 = 1;
@@ -250,16 +221,13 @@ bool ContFrac(const mpz_t Dp_A, int type, const int SqrtSign, long long s, long 
 		/* Dp_A = 1 */
 		mpz_set_si(Bi_H1, SqrtSign);
 		mpz_set_si(Bi_K1, 0);
-#ifdef test
-		std::cout << "**temp ContFrac Bi_H1="; ShowLargeNumber(Bi_H1);
-		std::cout << "  Bi_K1="; ShowLargeNumber(Bi_K1); std::cout << "\n";
-#endif
+		/*std::cout << "**temp ContFrac Bi_H1="; ShowLargeNumber(Bi_H1);
+		std::cout << "  Bi_K1="; ShowLargeNumber(Bi_K1); std::cout << "\n";*/
+
 		if (type == 1) {
 			ShowLargeXY(X1, Y1, Bi_H1, Bi_K1, true, "", "");
 			mpz_clears(Dp_P, Dp_M, Dp_Z, Dp_G, Dp_Mu, Dp_K, Dp_L, Dp_M1, Dp_P1, Dp_zz, NULL);
-#ifdef test
-			std::cout << "** temp ContFrac returns true (1) - solution(s) found\n";
-#endif
+			//std::cout << "** temp ContFrac returns true (1) - solution(s) found\n";
 			assert(_CrtCheckMemory());
 			return true;            /* Indicate there are solutions */
 		}
@@ -267,9 +235,7 @@ bool ContFrac(const mpz_t Dp_A, int type, const int SqrtSign, long long s, long 
 		if ((type == 3 || type == 4) && (g_Disc != 5 || A*g_F<0)) {
 			if (ShowHomoSols(type, Bi_H1, Bi_K1, s, T, MagnifY, "", "")) {
 				mpz_clears(Dp_P, Dp_M, Dp_Z, Dp_G, Dp_Mu, Dp_K, Dp_L, Dp_M1, Dp_P1, Dp_zz, NULL);
-#ifdef test
-				std::cout << "**temp ContFrac(2) - solution found\n";
-#endif
+				//std::cout << "**temp ContFrac(2) - solution found\n";
 				assert(_CrtCheckMemory());
 				return true;          /* Indicate there are solutions */
 			}
@@ -288,37 +254,26 @@ bool ContFrac(const mpz_t Dp_A, int type, const int SqrtSign, long long s, long 
 			ChSign(Dp_P);
 		}
 		LongToDoublePrecLong(SqrtDisc + (IsNeg(Dp_P) ? 1 : 0), Dp_K);
-#ifdef test
-		std::cout << "  Dp_K=" << numToStr(Dp_K) << "(1)\n";
-#endif
+		//std::cout << "  Dp_K=" << numToString(Dp_K) << "(1)\n";
 		if (SqrtSign < 0) {
 			SubtDoublePrecLong(Dp_K, Dp_NUM, Dp_K);  // K -= NUM
-#ifdef test
-			std::cout << "  Dp_K=" << numToStr(Dp_K) << "(2)\n";
-#endif
+			//std::cout << "  Dp_K=" << numToString(Dp_K) << "(2)\n";
 		}
 		else {
 			AddLarge(Dp_K, Dp_NUM, Dp_K);      // K += NUM
-#ifdef test
-			std::cout << "  Dp_K=" << numToStr(Dp_K) << "(3)\n";
-#endif
+			//std::cout << "  Dp_K=" << numToString(Dp_K) << "(3)\n";
 		}
-#ifdef test
-		std::cout << "  Dp_DEN=" << numToStr(Dp_DEN);
-#endif
+
+		//std::cout << "  Dp_DEN=" << numToString(Dp_DEN);
 		Z = DivDoublePrec(Dp_K, Dp_P);           // Z = K/P
-#ifdef test
-		std::cout << "  Dp_K=" << numToStr(Dp_K) << "  Dp_P=" << numToStr(Dp_P) << "\n";
-#endif
+		//std::cout << "  Dp_K=" << numToString(Dp_K) << "  Dp_P=" << numToString(Dp_P) << "\n";
 		LongToDoublePrecLong(Z, Dp_M);           // M = Z (=K/P)
 		Mult2LargeNumbers(Dp_M, Dp_DEN, Dp_K);  // K = M*DEN
-#ifdef test
-		std::cout << "  Dp_K=" << numToStr(Dp_K) << " Z=" << Z;
-#endif
+		//std::cout << "  Dp_K=" << numToString(Dp_K) << " Z=" << Z;
+
 		SubtDoublePrecLong(Dp_K, Dp_NUM, Dp_M);      // M = K-NUM
-#ifdef test
-		std::cout << "  Dp_M=" << numToStr(Dp_M) << "(4)\n";
-#endif
+		//std::cout << "  Dp_M=" << numToString(Dp_M) << "(4)\n";
+
 		if (SqrtSign < 0) {
 			ChSign(Dp_M);
 		}
@@ -339,12 +294,11 @@ bool ContFrac(const mpz_t Dp_A, int type, const int SqrtSign, long long s, long 
 			mpz_set_si(Bi_H2, Z*SqrtSign);
 			mpz_set_si(Bi_K1, 0);
 			mpz_set(Bi_K2, Bi_H1);
-#ifdef test
-			std::cout << "**temp ContFrac Bi_H1="; ShowLargeNumber(Bi_H1);
+			/*std::cout << "**temp ContFrac Bi_H1="; ShowLargeNumber(Bi_H1);
 			std::cout << "  Bi_H2="; ShowLargeNumber(Bi_H2);
 			std::cout << "  Bi_K1="; ShowLargeNumber(Bi_K1);
-			std::cout << "  Bi_K2="; ShowLargeNumber(Bi_K2); std::cout << "\n";
-#endif
+			std::cout << "  Bi_K2="; ShowLargeNumber(Bi_K2); std::cout << "\n";*/
+
 			g_A1 = g_B2 = 1;
 			g_A2 = g_B1 = 0;
 		}
@@ -353,9 +307,7 @@ bool ContFrac(const mpz_t Dp_A, int type, const int SqrtSign, long long s, long 
 
 		mpz_set_si(Dp_K, -1);  // K = -1
 		mpz_set_si(Dp_L, -1);  // L = -1
-#ifdef test
-		std::cout << "  Dp_K=" << numToStr(Dp_K) << "(6)\n";
-#endif
+		//std::cout << "  Dp_K=" << numToString(Dp_K) << "(6)\n";
 		/* set Mu */
 		switch (type) {
 		case 1:   // find convergents 
@@ -371,51 +323,40 @@ bool ContFrac(const mpz_t Dp_A, int type, const int SqrtSign, long long s, long 
 			mpz_set(Dp_Mu, Dp_DEN); // Mu = DEN
 			if (SqrtSign > 0) {
 				ChSign(Dp_Mu);
-#ifdef test
-				std::cout << "**temp ContFrac(3A) Dp_Mu= " << numToStr(Dp_Mu) << "  (revsign)\n";
-#endif
+				//std::cout << "**temp ContFrac(3A) Dp_Mu= " << numToString(Dp_Mu) << "  (revsign)\n";
 			}
 		}
-#ifdef test
-		std::cout << "**temp ContFrac(3B) Dp_Mu= " << numToStr(Dp_Mu);
-		std::cout << "  Dp_K=" << numToStr(Dp_K);
-		std::cout << "  Dp_P1=" << numToStr(Dp_P1) << "\n";
-#endif
+
+		/*std::cout << "**temp ContFrac(3B) Dp_Mu= " << numToString(Dp_Mu);
+		std::cout << "  Dp_K=" << numToString(Dp_K);
+		std::cout << "  Dp_P1=" << numToString(Dp_P1) << "\n";*/
+
 		do {
 			LongToDoublePrecLong(g_Disc, Dp_Z);     // Z = Disc  
-#ifdef test
-			std::cout << "**temp ContFrac  Dp_Z=" << numToStr(Dp_Z) << "(3D)\n";
-#endif
+			//std::cout << "**temp ContFrac  Dp_Z=" << numToString(Dp_Z) << "(3D)\n";
+
 			Mult2LargeNumbers(Dp_M, Dp_M, Dp_G);  // G = M*M
-#ifdef test
-			std::cout << "**temp ContFrac  Dp_G=" << numToStr(Dp_G) << "(3D)\n";
-#endif
+			//std::cout << "**temp ContFrac  Dp_G=" << numToString(Dp_G) << "\n";
+
 			SubtDoublePrecLong(Dp_Z, Dp_G, Dp_G);    // G = Z-G  = Disc -M*M
-#ifdef test
-			std::cout << "**temp ContFrac  Dp_G=" << numToStr(Dp_G) << "(3E)\n";
-#endif
+			//std::cout << "**temp ContFrac  Dp_G=" << numToString(Dp_G) << "\n";
+
 			DivideDoublePrecLong(Dp_G, Dp_P, Dp_P1);  // P1 = (Disc-M*M)/P
-#ifdef test
-			std::cout << "**temp ContFrac Dp_P1=" << numToStr(Dp_P1) << "\n";
-#endif
+			//std::cout << "**temp ContFrac Dp_P1=" << numToString(Dp_P1) << "\n";
 			/* Z = SqrtDisc +(1 or 0, depending on sign of P1) */
 			LongToDoublePrecLong(SqrtDisc + (IsNeg(Dp_P1) ? 1 : 0), Dp_Z);
 			AddLarge(Dp_Z, Dp_M, Dp_K);      // K = M+Z
-#ifdef test
-			std::cout << "**temp ContFrac  Dp_K=" << numToStr(Dp_K) << "\n";
-#endif
+			//std::cout << "**temp ContFrac  Dp_K=" << numToString(Dp_K) << "\n";
 			/* round Z to a multiple of P1 */
 
 			Z = DivDoublePrec(Dp_K, Dp_P1);        // Z = K/P1
 			LongToDoublePrecLong(Z, Dp_G);         // G = Z = K/P1
 			Mult2LargeNumbers(Dp_G, Dp_P1, Dp_Z); // Z=G*P1  i.e Z rounded to multiple of P1
-#ifdef test
-			std::cout << "**temp ContFrac  Dp_Z=" << numToStr(Dp_Z) << "\n";
-#endif
+			//std::cout << "**temp ContFrac  Dp_Z=" << numToString(Dp_Z) << "\n";
+
 			SubtDoublePrecLong(Dp_Z, Dp_M, Dp_M1); // M1 = Z-M
-#ifdef test
-			std::cout << " **temp ContFrac Dp_M1=" << numToStr(Dp_M1) << "\n";
-#endif
+			//std::cout << " **temp ContFrac Dp_M1=" << numToString(Dp_M1) << "\n";
+
 			mpz_add_si(Dp_zz, Dp_M, SqrtDisc);  // Dp_zz = SqrtDisc + DP_M
 			if (Co<0 &&
 				(mpz_cmp_si(Dp_P, 0)        >  0) &&
@@ -427,18 +368,16 @@ bool ContFrac(const mpz_t Dp_A, int type, const int SqrtSign, long long s, long 
 				Co = 0;
 				mpz_set(Dp_K, Dp_P);   // K = P
 				mpz_set(Dp_L, Dp_M);   // L = M
-#ifdef test
-				std::cout << "**temp ContFrac(4) Dp_K=" << numToStr(Dp_K);
-				std::cout << "  Dp_L=" << numToStr(Dp_L) << "\n";
-#endif
+				//std::cout << "**temp ContFrac(4) Dp_K=" << numToString(Dp_K);
+				//std::cout << "  Dp_L=" << numToString(Dp_L) << "\n";
 			}
-#ifdef test
-			std::cout << "**temp ContFrac(5)  type=" << type << "  Co=" << Co;
-			std::cout << "  Dp_P=" << numToStr(Dp_P);
-			std::cout << "  Dp_Mu=" << numToStr(Dp_Mu);
-			std::cout << "  Dp_K=" << numToStr(Dp_K);
-			std::cout << "  Dp_P1=" << numToStr(Dp_P1) << "\n";
-#endif
+
+			/*std::cout << "**temp ContFrac(5)  type=" << type << "  Co=" << Co;
+			std::cout << "  Dp_P=" << numToString(Dp_P);
+			std::cout << "  Dp_Mu=" << numToString(Dp_Mu);
+			std::cout << "  Dp_K=" << numToString(Dp_K);
+			std::cout << "  Dp_P1=" << numToString(Dp_P1) << "\n";*/
+
 			if (type == 1 && AreEqual(Dp_P, Dp_Mu)	) { 
 				// Solution found
 				if (Co % 2 == 0 || !AreEqual(Dp_K, Dp_P1)) {
@@ -455,9 +394,7 @@ bool ContFrac(const mpz_t Dp_A, int type, const int SqrtSign, long long s, long 
 					Sols = true;
 				}
 				secondDo = false;
-#ifdef test
-				std::cout << "**temp ContFrac(5A)\n";
-#endif
+				//std::cout << "**temp ContFrac(5A)\n";
 				break;
 			}
 
@@ -466,9 +403,7 @@ bool ContFrac(const mpz_t Dp_A, int type, const int SqrtSign, long long s, long 
 					if (Paso == 1) {
 						secondDo = false;
 						Sols = true;
-#ifdef test
-						std::cout << "**temp ContFrac(6)\n";
-#endif
+						//std::cout << "**temp ContFrac(6)\n";
 						break;
 					}
 					else {
@@ -487,9 +422,7 @@ bool ContFrac(const mpz_t Dp_A, int type, const int SqrtSign, long long s, long 
 							"DEN(" + numToStr(Conv) + ") - DEN(" + numToStr(Conv - 1) + ") = ")) {
 							secondDo = false;
 							Sols = true;
-#ifdef test
-							std::cout << "**temp ContFrac(7) - solution found\n";
-#endif
+							//std::cout << "**temp ContFrac(7) - solution found\n";
 							break;
 						}
 						AddLarge(Bi_H1, Bi_H2, Bi_H2);
@@ -510,9 +443,7 @@ bool ContFrac(const mpz_t Dp_A, int type, const int SqrtSign, long long s, long 
 								"DEN(" + numToStr(Conv) + ") = ")) {
 								secondDo = false;
 								Sols = true;
-#ifdef test
-								std::cout << "**temp ContFrac(8) - solution found\n";
-#endif
+								//std::cout << "**temp ContFrac(8) - solution found\n";
 								break;
 							}
 						}
@@ -522,18 +453,14 @@ bool ContFrac(const mpz_t Dp_A, int type, const int SqrtSign, long long s, long 
 								if ((Tmp - g_CY0) % g_CY1 == 0 || (Tmp + g_CY0) % g_CY1 == 0) {
 									secondDo = false;
 									Sols = true;
-#ifdef test
-									std::cout << "**temp ContFrac(9)\n";
-#endif
+									//std::cout << "**temp ContFrac(9)\n";
 									break;
 								}
 							}
 							else {
 								secondDo = false;
 								Sols = true;
-#ifdef test
-								std::cout << "**temp ContFrac(10)\n";
-#endif
+								//std::cout << "**temp ContFrac(10)\n";
 								break;
 							}
 						}
@@ -605,18 +532,14 @@ bool ContFrac(const mpz_t Dp_A, int type, const int SqrtSign, long long s, long 
 					}
 					Sols = true;
 				}
-#ifdef test
-				std::cout << "**temp ContFrac(11)\n";
-#endif
+				//std::cout << "**temp ContFrac(11)\n";
 				break;
 			}
 			if (type == 3 || type == 4) {
 				if ((Co & 1) == 0 && A*g_F>0 && g_Disc == 5) {   /* Solution found */
 					if (Paso == 1) {
 						Sols = true;
-#ifdef test
-						std::cout << "**temp ContFrac(12)\n";
-#endif
+						//std::cout << "**temp ContFrac(12)\n";
 						break;
 					}
 					else {
@@ -634,9 +557,7 @@ bool ContFrac(const mpz_t Dp_A, int type, const int SqrtSign, long long s, long 
 							"NUM(" + numToStr(Conv) + ") - NUM(" + numToStr(Conv - 1) + ") = ",
 							"DEN(" + numToStr(Conv) + ") - DEN(" + numToStr(Conv - 1) + ") = ")) {
 							Sols = true;
-#ifdef test
-							std::cout << "**temp ContFrac(13) - solution found\n";
-#endif
+							//std::cout << "**temp ContFrac(13) - solution found\n";
 							break;
 						}
 						AddLarge(Bi_H1, Bi_H2, Bi_H2);  // H2 = H1 + H2
@@ -656,9 +577,7 @@ bool ContFrac(const mpz_t Dp_A, int type, const int SqrtSign, long long s, long 
 								"NUM(" + numToStr(Conv) + ") = ",
 								"DEN(" + numToStr(Conv) + ") = ")) {
 								Sols = true;
-#ifdef test
-								std::cout << "**temp ContFrac(14) - solution found\n";
-#endif
+								//std::cout << "**temp ContFrac(14) - solution found\n";
 								break;
 							}
 						}
@@ -672,9 +591,7 @@ bool ContFrac(const mpz_t Dp_A, int type, const int SqrtSign, long long s, long 
 							}
 							else {
 								Sols = true;
-#ifdef test
-								std::cout << "**temp ContFrac(15)\n";
-#endif
+								//std::cout << "**temp ContFrac(15)\n";
 								break;
 							}
 						}
@@ -706,27 +623,21 @@ bool ContFrac(const mpz_t Dp_A, int type, const int SqrtSign, long long s, long 
 				NextConv(Bi_H1, Bi_H2, g_A1, g_A2, g_B1, g_B2);
 				NextConv(Bi_K1, Bi_K2, g_A1, g_A2, g_B1, g_B2);
 				Sols = true;
-#ifdef test
-				std::cout << "**temp ContFrac(17)\n";
-#endif
+				//std::cout << "**temp ContFrac(17)\n";
 				break;
 			}
 			if (type == 5) {
 				if (P1 == Mu) {
 					NbrCo = Co;
 					Sols = true;
-#ifdef test
-					std::cout << "**temp ContFrac(18) NbrCo=" << NbrCo << "\n";
-#endif
+					//std::cout << "**temp ContFrac(18) NbrCo=" << NbrCo << "\n";
 					break;
 				}
 				else {
 					Tmp = (g_A1 + Z*g_A2) % T;
-					g_A1 = g_A2; 
-					g_A2 = Tmp;
+					g_A1 = g_A2; g_A2 = Tmp;
 					Tmp = (g_B1 + Z*g_B2) % T;
-					g_B1 = g_B2; 
-					g_B2 = Tmp;
+					g_B1 = g_B2; g_B2 = Tmp;
 				}
 			}
 			Mu = -Mu;
@@ -742,27 +653,19 @@ bool ContFrac(const mpz_t Dp_A, int type, const int SqrtSign, long long s, long 
 				Tmp = g_B1; g_B1 = g_B2; g_B2 = Tmp;   // swap B1 and B2
 			}
 			Conv++;
-#ifdef test
-			std::cout << "**temp ContFrac(18A) NbrCo=" << NbrCo << "  Co=" << Co;
-			std::cout << "  K=" << K << "  P=" << P << "  L=" << L << "  M=" << M << "\n";
-#endif
+			/*std::cout << "**temp ContFrac(18A) NbrCo=" << NbrCo << "  Co=" << Co;
+			std::cout << "  K=" << K << "  P=" << P << "  L=" << L << "  M=" << M << "\n";*/
 		} while (NbrCo>0 ? Co != NbrCo : Co % 2 != 0 || K != P || L != M);
 
-#ifdef test
-		std::cout << "**temp ContFrac(18B)\n";
-#endif
+		//std::cout << "**temp ContFrac(18B)\n";
 		/* type = 5: Find convergents for x^2 + Bxy + ACy^2 = 1 (mod B^2-4AC) */
 		if (type == 5) {
-#ifdef test
-			std::cout << "**temp ContFrac(19)\n";
-#endif
+			//std::cout << "**temp ContFrac(19)\n";
 			break;   // break out of for loop
 		}
 	}                        /* end for */
 
-#ifdef test
-	std::cout << "**temp ContFrac returns " << Sols << "\n";
-#endif
+	//std::cout << "**temp ContFrac returns " << Sols << "\n";
 	mpz_clears(Dp_P, Dp_M, Dp_Z, Dp_G, Dp_Mu, Dp_K, Dp_L, Dp_M1, Dp_P1, Dp_zz, NULL);
 	assert(_CrtCheckMemory());
 	return Sols;
@@ -803,9 +706,9 @@ void SolContFrac(long long H, long long T, long long A, long long B, long long C
 	bool ShowHR = false;
 
 	mpz_inits(Dp_A, Dp_B, Dp_C, Dp_R, Dp_S, Dp_T, Dp_Tmp2, Dp_Tmp3, Bi_Xcopy, Bi_Ycopy, NULL);
-#ifdef test
-	std::cout << "**temp SolContFrac:  H=" << H << "  T=" << T << "  A=" << A << "  B=" << B << "  C=" << C << "\n";;
-#endif
+
+	//std::cout << "**temp SolContFrac:  H=" << H << "  T=" << T << "  A=" << A << "  B=" << B << "  C=" << C << "\n";;
+
 	mpz_set(Dp_Tmp2, Dp_NUM);          // copy global NUM to local Tmp2
 	mpz_set(Dp_Tmp3, Dp_DEN);          // copy global DEN to l.ocal Tmp3
 
@@ -999,9 +902,9 @@ void SolContFrac(long long H, long long T, long long A, long long B, long long C
 					}
 				}
 			}               /* End Quadratic Equation */
-#ifdef test
+
 			//std::cout << "**temp SolContFrac: Sol1 =" << Sol1 << "  Sol2=" << Sol2 << "\n";
-#endif
+
 			ValAM = (ValA + ValF) % ValF;
 			ValBM = (ValB + ValF) % ValF;
 			ValCM = (ValC + ValF) % ValF;
@@ -1098,9 +1001,7 @@ void SolContFrac(long long H, long long T, long long A, long long B, long long C
 					mpz_set(Dp_NUM, Dp_Tmp2);         // NUM = Tmp2
 					mpz_set(Dp_DEN, Dp_Tmp3);         // DEN = Tmp3
 					g_Disc = Tmp4;
-#ifdef test
-					std::cout << "**temp SolContFrac exit(1)\n";
-#endif
+					//std::cout << "**temp SolContFrac exit(1)\n";
 					mpz_clears(Dp_A, Dp_B, Dp_C, Dp_R, Dp_S, Dp_T, Dp_Tmp2, Dp_Tmp3, Bi_Xcopy, Bi_Ycopy, NULL);
 					assert(_CrtCheckMemory());
 					return;
@@ -1115,9 +1016,7 @@ void SolContFrac(long long H, long long T, long long A, long long B, long long C
 				dif = 0;
 				q = (MultMod((MultMod(ValAM, t, ValF) + ValBM) % ValF, t, ValF) + ValCM) % ValF;  /* q%v = 0 */
 				while (true) {
-#ifdef test
-					std::cout << "**temp SolContFrac(2)\n";
-#endif
+					//std::cout << "**temp SolContFrac(2)\n";
 					if (q%v == 0) {
 						if (index == 0) {          /* Solution found */
 							EqNbr++;
@@ -1146,19 +1045,13 @@ void SolContFrac(long long H, long long T, long long A, long long B, long long C
 							Mult2LargeNumbers(Dp_R, Dp_T, Dp_C);     // Dp_C = -AF
 							gcd(Dp_A, Dp_B, Dp_T);      // Dp_T = gcd(Dp_A, Dp_B)
 							gcd(Dp_T, Dp_C, Dp_R);      // Dp_R = gcd(Dp_A, Dp_B, Dp_C)
-							/* temporary */
-#ifdef test
-							std::cout << "**temp SolContFrac  Dp_A=" << numToStr(Dp_A) << "  Dp_B=" << numToStr(Dp_B);
-							std::cout << "  Dp_C=" << numToStr(Dp_C) << "   DP_R=" << numToStr(Dp_R) << "\n";
-#endif
-							/* end temporary */
-
 							if (teach) {
 								std::cout << "Let s = " << s << ". Replacing in the above equation:\n";
 								ShowBigEq(Dp_A, Dp_B, Dp_C, VL1, "z");
 								printf(" = 1\n");
 							}
-							
+							//if (Dp_R[0]>1 || Dp_R[1]>0 || Dp_R[2]>0 || Dp_R[3]>0 || Dp_R[4]>0 ||
+							//	Dp_R[5]>0 && Dp_R[5]<DosALa31) {  // if Dp_R > 1 ...
 							if (mpz_cmp_si(Dp_R, 1) >0) {  // if Dp_R > 1 ...
 								if (teach) {
 									std::cout << "Since the gcd of the three coefficients is "
@@ -1175,9 +1068,7 @@ void SolContFrac(long long H, long long T, long long A, long long B, long long C
 											ChangeSign(Bi_L1);
 											ChangeSign(Bi_L2);
 										}
-#ifdef test
 										//std::cout << "**temp SolContFrac (2C) copy sol to ArrayX and ArrayY";
-#endif
 										mpz_set(Bi_Xcopy, Bi_L1);
 										mpz_set(Bi_Ycopy, Bi_L2);
 									}
@@ -1193,24 +1084,18 @@ void SolContFrac(long long H, long long T, long long A, long long B, long long C
 
 										}
 										if (Compare(Bi_L2, Bi_Ycopy) > 0) {
-#ifdef test
-											std::cout << "**temp SolContFrac (2A)\n";
-#endif
+											//std::cout << "**temp SolContFrac (2A)\n";
 											ShowLargeXY("X", "Y", Bi_Xcopy, Bi_Ycopy, true, "", "");
 										}
 										else {
-#ifdef test
-											std::cout << "**temp SolContFrac (2B)\n";
-#endif
+											//std::cout << "**temp SolContFrac (2B)\n";
 											ShowLargeXY("X", "Y", Bi_L1, Bi_L2, true, "", "");
 										}
 										//w("</TABLE>");
 									}
 									else {
 										if (!IsZero(Bi_Ycopy)) {
-#ifdef test
-											std::cout << "**temp SolContFrac(3)\n";
-#endif
+											//std::cout << "**temp SolContFrac(3)\n";
 											ShowLargeXY("X", "Y", Bi_Xcopy, Bi_Ycopy, true, "", "");
 										}
 									}
@@ -1240,16 +1125,12 @@ void SolContFrac(long long H, long long T, long long A, long long B, long long C
 					if (index < NbrFactors - 1 && ++t < factor[index]) {
 						q = (q + dif) % ValF;
 						dif = (dif + Pp) % ValF;
-#ifdef test
-						std::cout << "**temp SolContFrac(4)\n";
-#endif
+						//std::cout << "**temp SolContFrac(4)\n";
 						continue;
 					}
 					else {
 						while (++index < NbrFactors) {
-#ifdef test
-							std::cout << "**temp SolContFrac(5)\n";
-#endif
+							//std::cout << "**temp SolContFrac(5)\n";
 							t = pos[index]; v = mod[index];   /* Restore previous values */
 							if (index < NbrFactors - 1 && ++t < factor[index]) {
 								Pp = P[index];
@@ -1260,22 +1141,16 @@ void SolContFrac(long long H, long long T, long long A, long long B, long long C
 							}
 						}
 						if (index >= NbrFactors) {
-#ifdef test
-							std::cout << "**temp SolContFrac(6)\n";
-#endif
+							//std::cout << "**temp SolContFrac(6)\n";
 							break;   // break out of while loop
 						}
 					}
 				}
-#ifdef test
-				std::cout << "**temp SolContFrac(7)\n";
-#endif
+				//std::cout << "**temp SolContFrac(7)\n";
 				if (Sol1 == Sol2) {
 					break;  /* Do not process double root */
 				}
-#ifdef test
-				std::cout << "**temp SolContFrac(8)\n";
-#endif
+				//std::cout << "**temp SolContFrac(8)\n";
 				t = Sol2;
 			}
 			if (teach) {
@@ -1285,18 +1160,12 @@ void SolContFrac(long long H, long long T, long long A, long long B, long long C
 			mpz_set(Dp_NUM, Dp_Tmp2);        // NUM = Tmp2
 			mpz_set(Dp_DEN, Dp_Tmp3);         // DEN = Tmp3
 			g_Disc = Tmp4;
-#ifdef test
-			std::cout << "**temp SolContFrac(9)\n";
-#endif
+			//std::cout << "**temp SolContFrac(9)\n";
 		} while (MagnifY*MagnifY > gcdAF);
-#ifdef test
-		std::cout << "**temp SolContFrac(10)\n";
-#endif
+		//std::cout << "**temp SolContFrac(10)\n";
 	}   // end of for loop
 
-#ifdef test
-	std::cout << "**temp SolContFrac exit(11) \n";
-#endif
+		//std::cout << "**temp SolContFrac exit(11) \n";
 	mpz_clears(Dp_A, Dp_B, Dp_C, Dp_R, Dp_S, Dp_T, Dp_Tmp2, Dp_Tmp3, Bi_Xcopy, Bi_Ycopy, NULL);
 	assert(_CrtCheckMemory());
 }

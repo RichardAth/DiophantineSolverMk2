@@ -311,9 +311,9 @@ long long DivLargeNumber(const mpz_t n, long long d, mpz_t q) {
 	mpz_init(mpr);
 	mpz_fdiv_qr(q, mpr, n, mpd);  // q = n/d, mpr=remainder
 	remainder = mpz_get_si(mpr);  // magnitude of remainder is < d, so it can't overflow
-	//if (remainder != 0) {
-	//	gmp_printf("**temp DivLargeNumber %Zd/%lld = %Zd  rem=%lld \n", nsave, d, q, remainder);
-	//}
+	if (remainder != 0) {
+		//gmp_printf("**temp DivLargeNumber %Zd/%lld = %Zd  rem=%lld \n", nsave, d, q, remainder);
+	}
 	mpz_clears(mpr, mpd, nsave, NULL);
 	return remainder;
 }
@@ -339,9 +339,9 @@ long long tDivLargeNumber(const mpz_t n, long long d, mpz_t q) {
 	mpz_init(mpr);
 	mpz_tdiv_qr(q, mpr, n, mpd);  // q = n/d, mpr=remainder
 	remainder = mpz_get_si(mpr);  // magnitude of remainder is < d, so it can't overflow
-	/*if (remainder != 0) {
-		gmp_printf("**temp tDivLargeNumber %Zd/%lld = %Zd  rem=%lld \n", nsave, d, q, remainder);
-	}*/
+	if (remainder != 0) {
+		//gmp_printf("**temp tDivLargeNumber %Zd/%lld = %Zd  rem=%lld \n", nsave, d, q, remainder);
+	}
 	mpz_clears(mpr, mpd, nsave, NULL);
 	return remainder;
 }
@@ -379,36 +379,29 @@ It returns true if K and L are valid
 Uses input global variables g_A, g_B, g_C, g_D, g_E, Bi_H2, Bi_K2
 called from ShowSols */
 bool CalculateKandL() {
-#ifdef test
-	std::cout << "**temp CalculateKandL " 
-		<< " Bi_H2=" << Bi_H2 << " Bi_K2=" << Bi_K2;
+	/*std::cout << "**temp CalculateKandL " 
+		<< " Bi_H2=" << numToString(Bi_H2) << " Bi_K2=" << numToString(Bi_K2);
 	std::cout << " A=" << g_A << " B=" << g_B << " C=" << g_C << " D=" << g_D
-		<< " E=" << g_E << "\n";
-#endif
+		<< " E=" << g_E << "\n";*/
+
 	MultAddLargeNumbers(2, Bi_H2, g_B, Bi_K2, Bi_L1);  /* 2r + Bs */
 	AddLarge(Bi_L1, -2, Bi_H1);  /* Kd = 2r + Bs - 2 */
 	AddLarge(Bi_H2, -1, Bi_K1);  /* r - 1 */
 	MultAddLargeNumbers(-g_B, Bi_K1, -2 * g_A*g_C, Bi_K2, Bi_K1);  /* Ke */
 	MultAddLargeNumbers(g_C*g_D, Bi_H1, g_E, Bi_K1, Bi_L1);  /* K(4AC - BB) */
 	if (tDivLargeNumber(Bi_L1, 4 * g_A*g_C - g_B*g_B, Bi_L1) != 0) {  /* K */
-#ifdef test
-		std::cout <<"**temp CalculateKandL: K not integer; return false\n";
-#endif
+		//std::cout <<"**temp CalculateKandL: K not integer; return false\n";
 		return false;               /* K not integer */
 	}
 	MultAddLargeNumbers(g_D, Bi_K1, g_A*g_E, Bi_H1, Bi_L2);
-#ifdef test
-	std::cout << "**temp CalculateKandL " << " Bi_L2=" << numToString(Bi_L2) 
-		<< " Divisor = " <<   4 * g_A*g_C - g_B*g_B << "\n";
-#endif
+	/*std::cout << "**temp CalculateKandL " << " Bi_L2=" << numToString(Bi_L2) 
+		<< " Divisor = " <<   4 * g_A*g_C - g_B*g_B << "\n";*/
 	if (tDivLargeNumber(Bi_L2, 4 * g_A*g_C - g_B*g_B, Bi_L2) != 0) {
 		/*std::cout << "**temp CalculateKandL: L not integer; return false\n";*/
 		return false;               /* L not integer */
 	}
 	MultAddLargeNumbers(1, Bi_L2, g_D, Bi_K2, Bi_L2);    /* L */
-#ifdef test
-	std::cout << "**temp CalculateKandL: Bi_L2=" << numToString(Bi_L2) << "\n";
-#endif
+	//std::cout << "**temp CalculateKandL: Bi_L2=" << numToString(Bi_L2) << "\n";
 	return true;
 }
 
@@ -457,10 +450,9 @@ type = hyperbolic_homog (homogenous) or hyperbolic_gen (general hyperbolic)
 return 1 if K or L not integers, otherwise zero
 If K and L are integers, print values for P, Q, K, R, S, L*/
 int ShowSols(equation_class type) {
-#ifdef test
-	std::cout << "**temp ShowSols  Bi_H2=" << numToStr(Bi_H2) << " Bi_K2=" << numToStr(Bi_K2) 
-		<< " Bi_L2=" << numToStr(Bi_L2) << " g_C=" << g_C << "\n";
-#endif
+
+	//std::cout << "**temp ShowSols  Bi_H2=" << numToString(Bi_H2)
+	//	<< " Bi_K2=" << numToString(Bi_K2) << " g_C=" << g_C << "\n";
 	if (type == hyperbolic_gen) {
 		if (!CalculateKandL()) {     /* if K or L not integers */
 			return 1;                      /* bye */
@@ -806,18 +798,16 @@ void GetRoot(mpz_t Dp_A, mpz_t Dp_B, mpz_t Dp_C) {
 	}
 	g_Disc *= B*B;
 	mpz_set(Dp_NUM, Dp_B);                     // NUM = B
-	ChSign(Dp_NUM);                    // NUM = -B
+	ChSign(Dp_NUM);                // NUM = -B
 	AddLarge(Dp_A, Dp_A, Dp_DEN);       // DEN = A*2
 	SqrtDisc = llSqrt(g_Disc);
 	/* temporary */
-#ifdef test
-	std::cout << "**temp** getroot: DP_A=" << numToStr(Dp_A);
-	std::cout << " DP_B=" << numToStr(Dp_B);
-	std::cout << " DP_C=" << numToStr(Dp_C);
-	std::cout << " DP_NUM=" << numToStr(Dp_NUM);
-	std::cout << " DP_DEN=" << numToStr(Dp_DEN);
-	std::cout << " SqrtDisc =" << SqrtDisc << "  Disc =" << g_Disc << "\n";
-#endif
+	//std::cout << "**temp** getroot: DP_A=" << numToString(Dp_A);
+	//std::cout << " DP_B=" << numToString(Dp_B);
+	//std::cout << " DP_C=" << numToString(Dp_C);
+	//std::cout << " DP_NUM=" << numToString(Dp_NUM);
+	//std::cout << " DP_DEN=" << numToString(Dp_NUM);
+	//std::cout << " SqrtDisc =" << SqrtDisc << "  Disc =" << g_Disc << "\n";
 	/* end temporary */
 
 	if (teach) {
@@ -1000,7 +990,7 @@ void InsertNewSolution(const mpz_t Bi_H1, mpz_t Bi_K1) {
 				}
 				if (compare == 0) {
 					/* temporary  */
-			/*		printf("** duplicate solution discarded: X = ");
+					/*printf("** duplicate solution discarded: X = ");
 					ShowLargeNumber(Bi_H1);
 					printf("  Y = ");
 					ShowLargeNumber(Bi_K1);
@@ -1061,7 +1051,7 @@ void ShowLargeXY(std::string x, std::string y, mpz_t Bi_X, mpz_t Bi_Y,
 
 	if ((x == "X") && (y == "Y")) {
 		
-	/*	std::cout << "**temp ShowLargeXY H1="; 	ShowLargeNumber(Bi_H1);
+		/*std::cout << "**temp ShowLargeXY H1="; 	ShowLargeNumber(Bi_H1);
 		std::cout << " K1=";  ShowLargeNumber(Bi_K1);
 		std::cout << "  sol=" << sol << "\n";*/
 
@@ -1447,19 +1437,19 @@ void ShowRecursion(equation_class type) {
 	ShowRecursionRoot(type);
 
 	/* big problem here!! it prints rubbish values!! */
-	if (g_B != 0) {
-		if (teach) {
-			std::cout << "\nAnother" << t1;
-			ShowEq(1, g_B, g_A*g_C, 0, 0, 0, "m", "n");
-			printf(" = 1 is: \n");
-		}
-		else {
-			printf("\nas well as\n");
-		}
-		MultAddLargeNumbers(1, Bi_H2, g_B, Bi_K2, Bi_H2); /* r <- r + Bs */
-		ChangeSign(Bi_K2);            /* s <- -s */
-		ShowRecursionRoot(type);
-	}
+	//if (g_B != 0) {
+	//	if (teach) {
+	//		std::cout << "\nAnother" << t1;
+	//		ShowEq(1, g_B, g_A*g_C, 0, 0, 0, "m", "n");
+	//		printf(" = 1 is: \n");
+	//	}
+	//	else {
+	//		printf("\nas well as\n");
+	//	}
+	//	MultAddLargeNumbers(1, Bi_H2, g_B, Bi_K2, Bi_H2); /* r <- r + Bs */
+	//	ChangeSign(Bi_K2);            /* s <- -s */
+	//	ShowRecursionRoot(type);
+	//}
 
 	mpz_clears(Dp_A, Dp_B, Dp_C, NULL);
 }
@@ -1509,7 +1499,6 @@ the equation can be represented as the product of 2 linear expressions.
 uses global variables g_A, g_B, g_D, g_CY0, g_CY1 */
 void SolveDiscIsSq(long long N0, std::string x, std::string y, long long SqrtD, long long g, long long h,
 	long long N1, std::string y1, std::string x1) {
-	/* N1 = abs(N0 / h) */	
 	long long Yc = llSqrt(g / h);
 	long long Xc = llSqrt(abs(g_CY1 / h));
 	long long temp, Fact1, Fact2, X1, Y1;
@@ -1519,6 +1508,7 @@ void SolveDiscIsSq(long long N0, std::string x, std::string y, long long SqrtD, 
 		ShowLin(Yc, Xc, 0, y1, x1);
 		printf(") (");
 		ShowLin(Yc, -Xc, 0, y1, x1);
+		//w(") = " + numToStr(N0 / h) + "\n");
 		printf(") = %lld \n", (N0 / h));
 	}
 
@@ -1553,9 +1543,10 @@ void SolveDiscIsSq(long long N0, std::string x, std::string y, long long SqrtD, 
 
 	/* N0 is not zero, discriminant is a perfect square */
 	if (teach) {
+		//w("Now we have to find all factors of " + numToStr(N1) + ". \n");
 		printf("Now we have to find all factors of %lld. \n", N1);
 	}
-	for (long long t1 = 1; t1 <= llSqrt(N1); t1++) {
+	for (unsigned long long t1 = 1; t1 <= llSqrt(N1); t1++) {
 		if (N1%t1 == 0) {
 			Fact1 = t1;       // t1 is a factor of N1, so copy it to Fact1
 			Fact2 = N0 / h / t1;
@@ -2638,12 +2629,6 @@ int main(int argc, char* argv[]) {
 			std::cout << "\nElliptical, no solutions\n";
 			a = 1; b = 0; c = 1; d = -0; e = 0; f = -6;
 			solveEquation(a, b, c, d, e, f);
-
-			std::cout << "PG10's problem\n";
-			a = 210; b = 0; c = -210; d = 464; e = -132; f = -19571242916;
-			teach = true;
-			solveEquation(a, b, c, d, e, f);
-			/*solution: x = 10771 y = 4779 */
 		}
 		
 		system("PAUSE");   // press any key to continue

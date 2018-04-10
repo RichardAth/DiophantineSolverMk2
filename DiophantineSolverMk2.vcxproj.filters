@@ -32,7 +32,10 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Diophantinechecker.cpp">
+    <ClCompile Include="DiophantineSolverMk2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ContFrac.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
